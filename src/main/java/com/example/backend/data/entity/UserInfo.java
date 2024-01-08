@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class userInfo {
+public class UserInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,4 +23,7 @@ public class userInfo {
 
     @OneToOne(mappedBy = "userInfo")
     private Student student;
+
+    @OneToOne(mappedBy = "userInfo")
+    private Teacher teacher;
 }

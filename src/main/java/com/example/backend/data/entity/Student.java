@@ -3,6 +3,8 @@ package com.example.backend.data.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -16,9 +18,12 @@ public class Student {
 
     @OneToOne
     @JoinColumn(name = "user_info_id")
-    private userInfo userInfo;
+    private UserInfo userInfo;
 
     @ManyToOne
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
+
+    @OneToMany(mappedBy = "thesisApplication")
+    private List<ThesisApplication> thesisApplications;
 }
