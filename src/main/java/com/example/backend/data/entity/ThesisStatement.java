@@ -1,6 +1,8 @@
 package com.example.backend.data.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -16,12 +18,21 @@ public class ThesisStatement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title")
+    @NonNull
+    @Column(name = "title", nullable = false)
     private String title;
-    @Column(name = "body")
+    @NonNull
+    @Column(name = "body", nullable = false)
     private String body;
-    @Column(name = "date_of_upload")
+    @NonNull
+    @Column(name = "date_of_upload", nullable = false)
     private LocalDate dateOfUpload;
+
+
+    @Min(value = 2, message = "The grade must be at least 2!")
+    @Max(value = 6, message = "The grade must not be higher than 6!")
+    @Column(name = "grade", nullable = false)
+    private int grade;
     @OneToOne
     @JoinColumn(name = "thesis_application_id")
     private ThesisApplication thesisApplication;

@@ -16,13 +16,17 @@ public class ThesisApplication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "topic")
+    @NonNull
+    @Column(name = "topic", nullable = false)
     private String topic;
-    @Column(name = "purpose")
+    @NonNull
+    @Column(name = "purpose", nullable = false)
     private String purpose;
-    @Column(name = "tasks")
+    @NonNull
+    @Column(name = "tasks", nullable = false)
     private String tasks;
-    @Column(name = "teck_stack")
+    @NonNull
+    @Column(name = "teck_stack", nullable = false)
     private String techStack;
     @Column(name = "is_approved")
     private boolean isApproved;
