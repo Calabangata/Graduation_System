@@ -36,5 +36,8 @@ public class ThesisApplication {
     @OneToOne(mappedBy = "thesisApplication")
     private ThesisStatement thesisStatement;
 
+    @OneToOne(mappedBy = "thesisApplication")
+    private ThesisApproval thesisApproval;
+
 
 }

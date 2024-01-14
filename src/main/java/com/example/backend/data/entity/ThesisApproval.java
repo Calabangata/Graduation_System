@@ -12,28 +12,23 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Teacher {
+public class ThesisApproval {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "academic_rank")
-    private String academicRank;
-
-    @OneToMany(mappedBy = "teacher")
-    private List<Student> students;
+    @OneToOne
+    @JoinColumn(name = "thesis_id")
+    private ThesisApplication thesisApplication;
 
     @OneToOne
-    @JoinColumn(name = "user_info_id")
-    private UserInfo userInfo;
-
-    @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @OneToOne(mappedBy = "teacher")
-    private TeacherApproval teacherApproval;
+    @OneToMany(mappedBy = "thesisApproval")
+    private List<TeacherApproval> teacherApprovals;
 
-
+    @Enumerated(EnumType.STRING)
+    private ApprovalStatus status;
 }
