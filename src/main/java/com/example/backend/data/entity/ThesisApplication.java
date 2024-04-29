@@ -19,25 +19,34 @@ public class ThesisApplication {
     @NonNull
     @Column(name = "topic", nullable = false)
     private String topic;
+
     @NonNull
     @Column(name = "purpose", nullable = false)
     private String purpose;
+
     @NonNull
     @Column(name = "tasks", nullable = false)
     private String tasks;
+
     @NonNull
     @Column(name = "teck_stack", nullable = false)
     private String techStack;
+
     @Column(name = "is_approved")
     private boolean isApproved;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "thesis_approval_id", referencedColumnName = "id", unique = true)
+    private ThesisApproval thesisApproval;
+
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
+
     @OneToOne(mappedBy = "thesisApplication")
     private ThesisStatement thesisStatement;
 
-    @OneToOne(mappedBy = "thesisApplication")
-    private ThesisApproval thesisApproval;
+
 
 
 }

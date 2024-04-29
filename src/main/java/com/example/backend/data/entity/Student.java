@@ -24,6 +24,6 @@ public class Student {
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 
-    @OneToMany(mappedBy = "thesisApplication")
+    @OneToMany(mappedBy = "student")
     private List<ThesisApplication> thesisApplications;
 }

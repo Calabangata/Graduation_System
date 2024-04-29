@@ -18,8 +18,7 @@ public class ThesisApproval {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "thesis_id")
+    @OneToOne(mappedBy = "thesisApproval")
     private ThesisApplication thesisApplication;
 
     @OneToOne
