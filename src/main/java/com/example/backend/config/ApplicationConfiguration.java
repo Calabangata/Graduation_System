@@ -1,4 +1,4 @@
-package com.example.backend.configs;
+package com.example.backend.config;
 
 import com.example.backend.data.repository.UserInfoRepository;
 import org.springframework.context.annotation.Bean;

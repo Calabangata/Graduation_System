@@ -1,4 +1,4 @@
-package com.example.backend.configs;
+package com.example.backend.config;
 
 import com.example.backend.security.JwtService;
 import jakarta.servlet.FilterChain;
