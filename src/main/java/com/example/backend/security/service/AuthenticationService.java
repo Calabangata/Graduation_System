@@ -4,6 +4,7 @@ import com.example.backend.data.entity.UserInfo;
 import com.example.backend.data.repository.UserInfoRepository;
 import com.example.backend.dto.LoginUserDTO;
 import com.example.backend.dto.RegisterUserDTO;
+import com.example.backend.exception.UserAlreadyExistsException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,10 @@ public class AuthenticationService {
     }
 
     public UserInfo registerUser(RegisterUserDTO registerUserDTO) {
+
+        if (userInfoRepository.findByEmail(registerUserDTO.getEmail()).isPresent()) {
+            throw new UserAlreadyExistsException("User with email " + registerUserDTO.getEmail() + " already exists");
+        }
 
         UserInfo userInfo = new UserInfo();
         userInfo.setFirstName(registerUserDTO.getFirstName());
