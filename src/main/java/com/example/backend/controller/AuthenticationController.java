@@ -4,7 +4,7 @@ import com.example.backend.data.entity.UserInfo;
 import com.example.backend.dto.LoginResponse;
 import com.example.backend.dto.LoginUserDTO;
 import com.example.backend.dto.RegisterUserDTO;
-import com.example.backend.security.JwtService;
+import com.example.backend.security.service.JwtService;
 import com.example.backend.security.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

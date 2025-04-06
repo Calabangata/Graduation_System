@@ -1,4 +1,4 @@
-package com.example.backend.security;
+package com.example.backend.security.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
