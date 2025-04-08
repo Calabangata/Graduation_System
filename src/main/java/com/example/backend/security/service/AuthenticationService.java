@@ -1,8 +1,12 @@
 package com.example.backend.security.service;
 
 import com.example.backend.data.entity.Role;
+import com.example.backend.data.entity.Student;
+import com.example.backend.data.entity.Teacher;
 import com.example.backend.data.entity.UserInfo;
 import com.example.backend.data.repository.RoleRepository;
+import com.example.backend.data.repository.StudentRepository;
+import com.example.backend.data.repository.TeacherRepository;
 import com.example.backend.data.repository.UserInfoRepository;
 import com.example.backend.dto.LoginUserDTO;
 import com.example.backend.dto.RegisterUserDTO;
@@ -22,14 +26,18 @@ public class AuthenticationService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final StudentRepository studentRepository;
+    private final TeacherRepository teacherRepository;
 
     public AuthenticationService(UserInfoRepository userInfoRepository, RoleRepository roleRepository,
                                  PasswordEncoder passwordEncoder,
-                                 AuthenticationManager authenticationManager) {
+                                 AuthenticationManager authenticationManager, StudentRepository studentRepository, TeacherRepository teacherRepository) {
         this.userInfoRepository = userInfoRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.studentRepository = studentRepository;
+        this.teacherRepository = teacherRepository;
     }
 
     public UserInfo registerUser(RegisterUserDTO registerUserDTO) {
@@ -49,17 +57,24 @@ public class AuthenticationService {
             throw new IllegalArgumentException("Invalid role specified");
         }
         userInfo.setRole(role.get());
-
-        return userInfoRepository.save(userInfo);
+        UserInfo savedUser = userInfoRepository.save(userInfo);
+        if (UserRole.STUDENT.name().equals(registerUserDTO.getRole())) {
+            Student student = new Student();
+            student.setUserInfo(savedUser);
+            studentRepository.save(student);
+        } else if (UserRole.TEACHER.name().equals(registerUserDTO.getRole())) {
+            Teacher teacher = new Teacher();
+            teacher.setUserInfo(savedUser);
+            teacherRepository.save(teacher);
+        }
+        return savedUser;
     }
 
     public UserInfo authenticateUser(LoginUserDTO loginUserDTO) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginUserDTO.getEmail(), loginUserDTO.getPassword())
         );
-
         return userInfoRepository.findByEmail(loginUserDTO.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
-
 }
