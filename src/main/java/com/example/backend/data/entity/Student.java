@@ -1,6 +1,7 @@
 package com.example.backend.data.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.util.List;
@@ -15,6 +16,10 @@ public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotNull
+    @Column(name = "faculty_number", unique = true)
+    private String facultyNumber;
 
     @OneToOne
     @JoinColumn(name = "user_info_id")

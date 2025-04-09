@@ -1,9 +1,8 @@
 package com.example.backend.data.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @Data
@@ -16,19 +15,19 @@ public class ThesisApplication {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
+    @NotNull
     @Column(name = "topic", nullable = false)
     private String topic;
 
-    @NonNull
+    @NotNull
     @Column(name = "purpose", nullable = false)
     private String purpose;
 
-    @NonNull
+    @NotNull
     @Column(name = "tasks", nullable = false)
     private String tasks;
 
-    @NonNull
+    @NotNull
     @Column(name = "teck_stack", nullable = false)
     private String techStack;
 

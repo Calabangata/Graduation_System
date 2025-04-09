@@ -3,6 +3,7 @@ package com.example.backend.data.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -18,13 +19,13 @@ public class ThesisStatement {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
+    @NotNull
     @Column(name = "title", nullable = false)
     private String title;
-    @NonNull
+    @NotNull
     @Column(name = "body", nullable = false)
     private String body;
-    @NonNull
+    @NotNull
     @Column(name = "date_of_upload", nullable = false)
     private LocalDate dateOfUpload;
 

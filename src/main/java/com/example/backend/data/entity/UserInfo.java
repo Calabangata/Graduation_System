@@ -1,6 +1,7 @@
 package com.example.backend.data.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,11 +22,11 @@ public class UserInfo implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
+    @NotNull
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @NonNull
+    @NotNull
     @Column(name = "last_name", nullable = false)
     private String lastName;
 

@@ -6,9 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,5 +33,17 @@ public class UserInfoController {
     public ResponseEntity<List<UserInfo>> getAllUsers() {
         List<UserInfo> users = userInfoService.getAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @DeleteMapping("/student/delete")
+    public ResponseEntity<Void> deleteStudentByFacultyNumber(@RequestParam String facultyNumber) {
+        userInfoService.deleteStudentByFacultyNumber(facultyNumber);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/teacher/delete")
+    public ResponseEntity<Void> deleteTeacherByEmail(@RequestParam String email) {
+        userInfoService.deleteTeacherByEmail(email);
+        return ResponseEntity.noContent().build();
     }
 }
