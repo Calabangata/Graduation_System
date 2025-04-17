@@ -8,10 +8,12 @@ import com.example.backend.data.repository.RoleRepository;
 import com.example.backend.data.repository.StudentRepository;
 import com.example.backend.data.repository.TeacherRepository;
 import com.example.backend.data.repository.UserInfoRepository;
+import com.example.backend.dto.LoginResponse;
 import com.example.backend.dto.LoginUserDTO;
 import com.example.backend.dto.RegisterUserDTO;
 import com.example.backend.enums.UserRole;
 import com.example.backend.exception.UserAlreadyExistsException;
+import com.example.backend.security.data.entity.RefreshToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,16 +30,20 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
+    private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     public AuthenticationService(UserInfoRepository userInfoRepository, RoleRepository roleRepository,
                                  PasswordEncoder passwordEncoder,
-                                 AuthenticationManager authenticationManager, StudentRepository studentRepository, TeacherRepository teacherRepository) {
+                                 AuthenticationManager authenticationManager, StudentRepository studentRepository, TeacherRepository teacherRepository, JwtService jwtService, RefreshTokenService refreshTokenService) {
         this.userInfoRepository = userInfoRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.studentRepository = studentRepository;
         this.teacherRepository = teacherRepository;
+        this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public UserInfo registerUser(RegisterUserDTO registerUserDTO) {
@@ -76,5 +82,32 @@ public class AuthenticationService {
         );
         return userInfoRepository.findByEmail(loginUserDTO.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public LoginResponse login(LoginUserDTO loginUserDTO) {
+        UserInfo user = authenticateUser(loginUserDTO);
+
+        String accessToken = jwtService.generateToken(user);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+
+        return new LoginResponse(accessToken, refreshToken.getToken(), jwtService.getExpirationTime());
+
+    }
+
+    public LoginResponse refresh(String token) {
+        RefreshToken refreshToken = refreshTokenService.findByToken(token)
+                .map(refreshTokenService::verifyExpiration)
+                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+
+        UserInfo user = refreshToken.getUser();
+        String newAccessToken = jwtService.generateToken(user);
+
+        return new LoginResponse(newAccessToken, token, jwtService.getExpirationTime());
+    }
+
+    public void logout(String email) {
+        UserInfo user = userInfoRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        refreshTokenService.deleteByUser(user);
     }
 }
