@@ -1,9 +1,9 @@
 package com.example.backend.security.controller;
 
 import com.example.backend.data.entity.UserInfo;
-import com.example.backend.dto.LoginResponse;
+import com.example.backend.dto.response.LoginResponse;
 import com.example.backend.dto.LoginUserDTO;
-import com.example.backend.dto.RegisterUserDTO;
+import com.example.backend.dto.request.RegisterUserDTO;
 import com.example.backend.security.service.AuthenticationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

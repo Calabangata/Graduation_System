@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

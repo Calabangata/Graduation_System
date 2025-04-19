@@ -1,13 +1,11 @@
 package com.example.backend.data.entity;
 
-import com.example.backend.enums.ApprovalStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -32,8 +30,11 @@ public class Teacher {
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @OneToOne(mappedBy = "teacher")
-    private TeacherApproval teacherApproval;
+    @OneToMany(mappedBy = "supervisor")
+    private List<ThesisApplication> submittedApplications;
+
+    @OneToMany(mappedBy = "teacher")
+    private List<TeacherApproval> teacherApprovals;
 
 
 }

@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -19,7 +18,7 @@ public class TeacherApproval {
     @JoinColumn(name = "thesis_approval_id")
     private ThesisApproval thesisApproval;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
 

@@ -1,7 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.data.entity.UserInfo;
-import com.example.backend.dto.RegisterUserDTO;
+import com.example.backend.dto.request.RegisterUserDTO;
 import com.example.backend.service.UserInfoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

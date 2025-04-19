@@ -6,7 +6,7 @@ import com.example.backend.data.entity.UserInfo;
 import com.example.backend.data.repository.RoleRepository;
 import com.example.backend.data.repository.StudentRepository;
 import com.example.backend.data.repository.UserInfoRepository;
-import com.example.backend.dto.RegisterUserDTO;
+import com.example.backend.dto.request.RegisterUserDTO;
 import com.example.backend.enums.UserRole;
 import com.example.backend.exception.UserNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -4,7 +4,7 @@ import com.example.backend.data.entity.Role;
 import com.example.backend.data.entity.UserInfo;
 import com.example.backend.data.repository.RoleRepository;
 import com.example.backend.data.repository.UserInfoRepository;
-import com.example.backend.dto.RegisterUserDTO;
+import com.example.backend.dto.request.RegisterUserDTO;
 import com.example.backend.enums.UserRole;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
