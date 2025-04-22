@@ -7,8 +7,7 @@ import com.example.backend.data.repository.DepartmentRepository;
 import com.example.backend.data.repository.TeacherRepository;
 import com.example.backend.dto.DepartmentDTO;
 import com.example.backend.dto.UserInfoDTO;
-import com.example.backend.exception.DepartmentNotFoundException;
-import com.example.backend.exception.UserNotFoundException;
+import com.example.backend.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +24,6 @@ public class DepartmentService {
         this.departmentRepository = departmentRepository;
     }
 
-
     public Department createDepartment(DepartmentDTO departmentDTO) {
         Department department = new Department();
         department.setName(departmentDTO.getDepartmentName());
@@ -34,18 +32,16 @@ public class DepartmentService {
 
     public void assignTeacherToDepartment(String departmentName, Long teacherId) {
         Department department = departmentRepository.findByName(departmentName)
-                .orElseThrow(() -> new DepartmentNotFoundException("Department with name '" + departmentName + "' not found"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Department with name '" + departmentName + "' not found"));
         Teacher teacher = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new UserNotFoundException("Teacher not found"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
         teacher.setDepartment(department);
         teacherRepository.save(teacher);
     }
 
     public List<UserInfoDTO> getTeachersByDepartmentName(String departmentName) {
         Department department = departmentRepository.findByName(departmentName)
-                .orElseThrow(() -> new DepartmentNotFoundException("Department with name '" + departmentName + "' not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Department with name '" + departmentName + "' not found"));
 
         return teacherRepository.findAllByDepartment(department)
                 .stream()
@@ -61,5 +57,4 @@ public class DepartmentService {
                 })
                 .collect(Collectors.toList());
     }
-
 }

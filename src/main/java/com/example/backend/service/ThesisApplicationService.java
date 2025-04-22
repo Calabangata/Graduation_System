@@ -1,18 +1,12 @@
 package com.example.backend.service;
 
-import com.example.backend.data.entity.Student;
-import com.example.backend.data.entity.Teacher;
-import com.example.backend.data.entity.ThesisApplication;
-import com.example.backend.data.entity.ThesisApproval;
-import com.example.backend.data.repository.StudentRepository;
-import com.example.backend.data.repository.TeacherRepository;
-import com.example.backend.data.repository.ThesisApplicationRepository;
-import com.example.backend.data.repository.ThesisApprovalRepository;
+import com.example.backend.data.entity.*;
+import com.example.backend.data.repository.*;
 import com.example.backend.dto.request.SubmitThesisApplicationDTO;
+import com.example.backend.dto.request.VoteOnThesisDTO;
 import com.example.backend.dto.response.ThesisApplicationResponseDTO;
 import com.example.backend.enums.ApprovalStatus;
-import com.example.backend.exception.UserAlreadyExistsException;
-import com.example.backend.exception.UserNotFoundException;
+import com.example.backend.exception.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +20,7 @@ public class ThesisApplicationService {
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final ThesisApprovalRepository thesisApprovalRepository;
+    private final TeacherApprovalRepository teacherApprovalRepository;
 
     /**
      * Submits a thesis application.
@@ -37,10 +32,10 @@ public class ThesisApplicationService {
     public ThesisApplicationResponseDTO submitApplication(SubmitThesisApplicationDTO dto) {
 
         Student student = studentRepository.findById(dto.getStudentId())
-                .orElseThrow(() -> new UserNotFoundException("Student not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
         Teacher supervisor = teacherRepository.findById(dto.getSupervisorId())
-                .orElseThrow(() -> new UserNotFoundException("Supervisor not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Supervisor not found"));
 
         if (supervisor.getStudents().contains(student)) {
             throw new UserAlreadyExistsException("Student already has a thesis application with this supervisor");
@@ -68,6 +63,36 @@ public class ThesisApplicationService {
         return toDto(thesisApplicationRepository.save(application));
     }
 
+    public void voteOnThesis(VoteOnThesisDTO dto) {
+        Teacher teacher = teacherRepository.findById(dto.getTeacherId())
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+
+        ThesisApplication application = thesisApplicationRepository.findById(dto.getThesisApplicationId())
+                .orElseThrow(() -> new ResourceNotFoundException("Thesis application not found"));
+
+        ThesisApproval approval = application.getThesisApproval();
+
+        if (!approval.getDepartment().getId().equals(teacher.getDepartment().getId())) {
+            throw new ForbiddenActionException("Teacher does not belong to the required department.");
+        }
+
+        if (approval.getTeacherApprovals() != null && approval.getTeacherApprovals().stream()
+                .anyMatch(a -> a.getTeacher().getId().equals(teacher.getId()))) {
+            throw new DuplicateActionException("Teacher has already voted.");
+        }
+
+        int totalTeachers = approval.getDepartment().getTeachers().size();
+        if (approval.getTeacherApprovals() != null && approval.getTeacherApprovals().size() >= totalTeachers) {
+            throw new ConflictException("All teachers in the department have already voted.");
+        }
+
+        TeacherApproval teacherApproval = new TeacherApproval();
+        teacherApproval.setTeacher(teacher);
+        teacherApproval.setThesisApproval(approval);
+        teacherApproval.setApprovalStatus(dto.isApproved() ? ApprovalStatus.APPROVED : ApprovalStatus.REJECTED);
+        teacherApprovalRepository.save(teacherApproval);
+    }
+
     private ThesisApplicationResponseDTO toDto(ThesisApplication app) {
         ThesisApplicationResponseDTO dto = new ThesisApplicationResponseDTO();
         dto.setId(app.getId());
@@ -82,5 +107,53 @@ public class ThesisApplicationService {
         dto.setDepartmentName(app.getSupervisor().getDepartment().getName());
         dto.setApprovalStatus(app.getThesisApproval().getStatus().name());
         return dto;
+    }
+
+    public void evaluateVotes(Long applicationId) {
+        ThesisApplication application = thesisApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Thesis application not found"));
+        ThesisApproval approval = application.getThesisApproval();
+        if (approval.getTeacherApprovals().size() < approval.getDepartment().getTeachers().size()) {
+            throw new ConflictException("Not all teachers in the department have voted yet.");
+        }
+        evaluateApprovalStatus(approval);
+    }
+
+    private void evaluateApprovalStatus(ThesisApproval approval) {
+        long totalVotes = approval.getTeacherApprovals().size();
+        long positiveVotes = approval.getTeacherApprovals().stream()
+                .filter(a -> a.getApprovalStatus() == ApprovalStatus.APPROVED)
+                .count();
+        long negativeVotes = approval.getTeacherApprovals().stream()
+                .filter(a -> a.getApprovalStatus() == ApprovalStatus.REJECTED)
+                .count();
+
+        if (positiveVotes >= totalVotes / 2) {
+            approval.setStatus(ApprovalStatus.APPROVED);
+            thesisApprovalRepository.save(approval);
+        } else if (negativeVotes > totalVotes / 2) {
+            approval.setStatus(ApprovalStatus.REJECTED);
+            thesisApprovalRepository.save(approval);
+        }
+    }
+
+    @Transactional
+    public void deleteApplication(Long applicationId) {
+
+        ThesisApplication application = thesisApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Thesis application not found"));
+        if (application.getThesisStatement() != null) {
+            throw new ConflictException("Cannot delete application with an associated thesis statement.");
+        }
+        if (application.getThesisApproval() != null) {
+            ThesisApproval approval = application.getThesisApproval();
+            if (approval.getTeacherApprovals() != null) {
+                for (TeacherApproval teacherApproval : approval.getTeacherApprovals()) {
+                    teacherApprovalRepository.delete(teacherApproval);
+                }
+            }
+            thesisApprovalRepository.delete(approval);
+        }
+        thesisApplicationRepository.delete(application);
     }
 }

@@ -17,8 +17,8 @@ import java.util.function.Function;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFoundException(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
@@ -48,6 +48,24 @@ public class GlobalExceptionHandler {
                 .map(entry -> entry.getValue().apply(exception))
                 .orElseGet(() -> createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception, "An unexpected error occurred"));
 
+    }
+
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ResponseEntity<ProblemDetail> handleForbiddenActionException(ForbiddenActionException exception) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.FORBIDDEN.value(), exception, "You are not allowed to perform this action");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(problemDetail);
+    }
+
+    @ExceptionHandler(DuplicateActionException.class)
+    public ResponseEntity<ProblemDetail> handleDuplicateActionException(DuplicateActionException exception) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.CONFLICT.value(), exception, "This action has already been performed");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ProblemDetail> handleConflictException(ConflictException exception) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.CONFLICT.value(), exception, "There is a conflict with the current state of the resource");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
     }
 
     private ProblemDetail createProblemDetail(int statusCode, Exception exception, String description) {

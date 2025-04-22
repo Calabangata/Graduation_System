@@ -8,7 +8,7 @@ import com.example.backend.data.repository.StudentRepository;
 import com.example.backend.data.repository.UserInfoRepository;
 import com.example.backend.dto.request.RegisterUserDTO;
 import com.example.backend.enums.UserRole;
-import com.example.backend.exception.UserNotFoundException;
+import com.example.backend.exception.ResourceNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +51,7 @@ public class UserInfoService {
     public void deleteStudentByFacultyNumber(String facultyNumber) {
         Optional<Student> optionalStudent = studentRepository.findByFacultyNumber(facultyNumber);
         if (optionalStudent.isEmpty()) {
-            throw new UserNotFoundException("Student with faculty number " + facultyNumber + " not found");
+            throw new ResourceNotFoundException("Student with faculty number " + facultyNumber + " not found");
         }
 
         Student student = optionalStudent.get();
@@ -64,11 +64,11 @@ public class UserInfoService {
     public void deleteTeacherByEmail(String email) {
         Optional<UserInfo> optionalUser = userInfoRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
-            throw new UserNotFoundException("Teacher with email " + email + " not found");
+            throw new ResourceNotFoundException("Teacher with email " + email + " not found");
         }
 
         if(optionalUser.get().getRole().getName() != UserRole.TEACHER) {
-            throw new UserNotFoundException("User with email " + email + " is not a teacher");
+            throw new ResourceNotFoundException("User with email " + email + " is not a teacher");
         }
         UserInfo user = optionalUser.get();
         userInfoRepository.delete(user);

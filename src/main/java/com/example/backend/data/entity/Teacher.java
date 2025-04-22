@@ -1,7 +1,11 @@
 package com.example.backend.data.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -16,7 +20,8 @@ public class Teacher {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "academic_rank")
+    @NotNull
+    @Column(name = "academic_rank", nullable = false)
     private String academicRank;
 
     @OneToMany(mappedBy = "teacher")
