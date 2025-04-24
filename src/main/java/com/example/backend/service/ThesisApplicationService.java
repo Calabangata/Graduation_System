@@ -9,6 +9,7 @@ import com.example.backend.enums.ApprovalStatus;
 import com.example.backend.exception.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -34,33 +35,41 @@ public class ThesisApplicationService {
         Student student = studentRepository.findById(dto.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        Teacher supervisor = teacherRepository.findById(dto.getSupervisorId())
-                .orElseThrow(() -> new ResourceNotFoundException("Supervisor not found"));
+        boolean hasActiveApplication = thesisApplicationRepository.existsByStudentIdAndActiveTrue(student.getId());
+        if (hasActiveApplication) {
+            throw new ConflictException("Student already has an active thesis application");
+        }
 
-        if (supervisor.getStudents().contains(student)) {
-            throw new UserAlreadyExistsException("Student already has a thesis application with this supervisor");
-        } else {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Teacher supervisor = teacherRepository
+                .findByUserInfo_Email(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Reviewer not found or not owned by current user"));
+        if (supervisor.getDepartment() != null) {
+
             supervisor.getStudents().add(student);
             student.setTeacher(supervisor);
             teacherRepository.save(supervisor);
             studentRepository.save(student);
+
+            ThesisApproval approval = new ThesisApproval();
+            approval.setDepartment(supervisor.getDepartment());
+            approval.setStatus(ApprovalStatus.PENDING);
+            thesisApprovalRepository.save(approval);
+
+            ThesisApplication application = new ThesisApplication();
+            application.setTopic(dto.getTopic());
+            application.setPurpose(dto.getPurpose());
+            application.setTasks(dto.getTasks());
+            application.setTechStack(dto.getTechStack());
+            application.setStudent(student);
+            application.setSupervisor(supervisor);
+            application.setThesisApproval(approval);
+
+            return toDto(thesisApplicationRepository.save(application));
+        } else {
+            throw new ConflictException("The Current supervisor must belong to a department to complete this action.");
         }
-
-        ThesisApproval approval = new ThesisApproval();
-        approval.setDepartment(supervisor.getDepartment());
-        approval.setStatus(ApprovalStatus.PENDING);
-        thesisApprovalRepository.save(approval);
-
-        ThesisApplication application = new ThesisApplication();
-        application.setTopic(dto.getTopic());
-        application.setPurpose(dto.getPurpose());
-        application.setTasks(dto.getTasks());
-        application.setTechStack(dto.getTechStack());
-        application.setStudent(student);
-        application.setSupervisor(supervisor);
-        application.setThesisApproval(approval);
-
-        return toDto(thesisApplicationRepository.save(application));
     }
 
     public void voteOnThesis(VoteOnThesisDTO dto) {

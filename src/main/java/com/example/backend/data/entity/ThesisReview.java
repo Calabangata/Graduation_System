@@ -1,8 +1,6 @@
 package com.example.backend.data.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,33 +15,28 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ThesisStatement {
+public class ThesisReview {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @NotNull
-    @Column(name = "title", nullable = false)
-    private String title;
 
     @NotNull
     @Column(name = "body", nullable = false)
     private String body;
 
     @NotNull
+    @Column(name = "approval_decision", nullable = false)
+    private String approvalDecision;
+
     @CreationTimestamp
     @Column(name = "date_of_upload", nullable = false)
     private LocalDateTime dateOfUpload;
 
-    @Min(2)
-    @Max(6)
-    @Column(name = "grade")
-    private Integer grade;
-
     @OneToOne
-    @JoinColumn(name = "thesis_application_id", unique = true)
-    private ThesisApplication thesisApplication;
+    @JoinColumn(name = "thesis_statement_id", unique = true)
+    private ThesisStatement thesisStatement;
 
-    @OneToOne(mappedBy = "thesisStatement")
-    private ThesisReview thesisReview;
+    @ManyToOne
+    @JoinColumn(name = "reviewer_id")
+    private Teacher reviewer;
 }

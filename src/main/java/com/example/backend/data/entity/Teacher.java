@@ -41,5 +41,7 @@ public class Teacher {
     @OneToMany(mappedBy = "teacher")
     private List<TeacherApproval> teacherApprovals;
 
+    @OneToMany(mappedBy = "reviewer")
+    private List<ThesisReview> thesisReviews;
 
 }

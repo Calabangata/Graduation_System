@@ -33,6 +33,9 @@ public class ThesisApplication {
     @Column(name = "is_approved")
     private boolean isApproved;
 
+    @Column(name = "is_active")
+    private boolean active = true;
+
     @OneToOne
     @JoinColumn(name = "thesis_approval_id", referencedColumnName = "id", unique = true)
     private ThesisApproval thesisApproval;
