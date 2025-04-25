@@ -35,6 +35,9 @@ public class UserInfo implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "is_active")
+    private boolean active = true;
+
     @OneToOne(mappedBy = "userInfo")
     private Student student;
 
@@ -74,6 +77,6 @@ public class UserInfo implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.active;
     }
 }

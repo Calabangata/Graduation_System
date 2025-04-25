@@ -34,16 +34,10 @@ public class UserInfoController {
         List<UserInfo> users = userInfoService.getAllUsers();
         return ResponseEntity.ok(users);
     }
-
-    @DeleteMapping("/student/delete")
-    public ResponseEntity<Void> deleteStudentByFacultyNumber(@RequestParam String facultyNumber) {
-        userInfoService.deleteStudentByFacultyNumber(facultyNumber);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping("/teacher/delete")
-    public ResponseEntity<Void> deleteTeacherByEmail(@RequestParam String email) {
-        userInfoService.deleteTeacherByEmail(email);
+    @PatchMapping("/{email}/activate")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
+    public ResponseEntity<Void> activateUser(@PathVariable String email) {
+        userInfoService.activateUser(email);
         return ResponseEntity.noContent().build();
     }
 }

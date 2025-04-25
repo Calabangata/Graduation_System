@@ -29,4 +29,7 @@ public class Student {
 
     @OneToMany(mappedBy = "student")
     private List<ThesisApplication> thesisApplications;
+
+    @Column(name = "is_graduated")
+    private boolean graduated = false;
 }

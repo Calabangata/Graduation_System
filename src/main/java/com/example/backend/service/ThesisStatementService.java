@@ -42,11 +42,7 @@ public class ThesisStatementService {
         statement.setBody(dto.getBody());
         statement.setGrade(null); // explicitly null
         statement.setThesisApplication(application);
-
         ThesisStatement saved = thesisStatementRepository.save(statement);
-
-        // Mark application inactive
-        application.setActive(false);
         thesisApplicationRepository.save(application);
 
         return toDto(saved);

@@ -7,6 +7,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -66,6 +67,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ProblemDetail> handleConflictException(ConflictException exception) {
         ProblemDetail problemDetail = createProblemDetail(HttpStatus.CONFLICT.value(), exception, "There is a conflict with the current state of the resource");
         return ResponseEntity.status(HttpStatus.CONFLICT).body(problemDetail);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ProblemDetail> handleDisabledException(DisabledException ex) {
+        ProblemDetail detail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Account is deactivated");
+        detail.setProperty("description", "Please contact an administrator to activate your account.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(detail);
     }
 
     private ProblemDetail createProblemDetail(int statusCode, Exception exception, String description) {

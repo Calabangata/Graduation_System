@@ -100,11 +100,11 @@ public class AuthenticationService {
     public LoginResponse login(LoginUserDTO loginUserDTO) {
         UserInfo user = authenticateUser(loginUserDTO);
 
+        // Delete any existing refresh tokens
+        refreshTokenService.deleteByUser(user);
         String accessToken = jwtService.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
-
         return new LoginResponse(accessToken, refreshToken.getToken(), jwtService.getExpirationTime());
-
     }
 
     public LoginResponse refresh(String token) {
@@ -114,7 +114,6 @@ public class AuthenticationService {
 
         UserInfo user = refreshToken.getUser();
         String newAccessToken = jwtService.generateToken(user);
-
         return new LoginResponse(newAccessToken, token, jwtService.getExpirationTime());
     }
 

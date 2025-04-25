@@ -22,6 +22,6 @@ public class Department {
     @OneToMany(mappedBy = "department")
     private List<Teacher> teachers;
 
-    @OneToOne(mappedBy = "department")
-    private ThesisApproval thesisApproval;
+    @OneToMany(mappedBy = "department")
+    private List<ThesisApproval> thesisApprovals;
 }

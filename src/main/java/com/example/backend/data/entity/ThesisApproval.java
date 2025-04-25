@@ -20,8 +20,8 @@ public class ThesisApproval {
     @OneToOne(mappedBy = "thesisApproval")
     private ThesisApplication thesisApplication;
 
-    @OneToOne
-    @JoinColumn(name = "department_id")
+    @ManyToOne
+    @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
     @OneToMany(mappedBy = "thesisApproval")

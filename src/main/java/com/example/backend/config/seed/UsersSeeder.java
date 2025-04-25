@@ -26,14 +26,14 @@ public class UsersSeeder implements ApplicationListener<ContextRefreshedEvent> {
 
     private void createTeachers() {
         IntStream.rangeClosed(1,4)
-                .mapToObj(i -> new RegisterUserDTO("Teacher", "T" + i, "teacher" + i + "@example.com", "teacher123", "TEACHER", AcademicRank.PROFESSOR.name()))
+                .mapToObj(i -> new RegisterUserDTO("Teacher", "T" + i, "teacher" + i + "@example.com", "12345", "TEACHER", AcademicRank.PROFESSOR.name()))
                 .forEach(authenticationService::createSeededUser);
 
     }
 
     private void createStudents() {
         IntStream.rangeClosed(1, 4)
-                .mapToObj(i -> new RegisterUserDTO("Student", "S" + i, "student" + i + "@example.com", "student123", "STUDENT", null))
+                .mapToObj(i -> new RegisterUserDTO("Student", "S" + i, "student" + i + "@example.com", "12345", "STUDENT", null))
                 .forEach(authenticationService::createSeededUser);
     }
 }

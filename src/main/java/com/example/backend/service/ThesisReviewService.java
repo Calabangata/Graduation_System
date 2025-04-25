@@ -9,6 +9,7 @@ import com.example.backend.data.repository.ThesisStatementRepository;
 import com.example.backend.dto.request.ThesisReviewRequestDTO;
 import com.example.backend.dto.response.ThesisReviewResponseDTO;
 import com.example.backend.enums.ApprovalStatus;
+import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +29,11 @@ public class ThesisReviewService {
         // Check if the thesis statement exists and is owned by the current user
         ThesisStatement thesisStatement = thesisStatementRepository.findById(dto.getThesisStatementId())
                 .orElseThrow(() -> new ResourceNotFoundException("Thesis statement not found"));
+
+        //Check if thesis review already exists
+        if (thesisStatement.getThesisReview() != null) {
+            throw new ConflictException("Thesis review already exists for this thesis statement");
+        }
 
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
