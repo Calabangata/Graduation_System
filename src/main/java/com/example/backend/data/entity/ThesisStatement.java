@@ -30,7 +30,6 @@ public class ThesisStatement {
     @Column(name = "body", nullable = false)
     private String body;
 
-    @NotNull
     @CreationTimestamp
     @Column(name = "date_of_upload", nullable = false)
     private LocalDateTime dateOfUpload;

@@ -1,8 +1,10 @@
 package com.example.backend.data.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -12,13 +14,10 @@ import java.util.List;
 @Getter
 @Setter
 public class Student {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @NotNull
-    @Column(name = "faculty_number", unique = true)
-    private String facultyNumber;
+    @Id
+    @Column(nullable = false, updatable = false)
+    private String id; // facultyNumber
 
     @OneToOne
     @JoinColumn(name = "user_info_id")

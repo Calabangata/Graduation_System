@@ -9,6 +9,5 @@ public class SubmitThesisApplicationDTO {
     private String purpose;
     private String tasks;
     private String techStack;
-    private Long studentId;
-    private Long supervisorId;
+    private String studentId;
 }

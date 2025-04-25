@@ -16,6 +16,8 @@ import com.example.backend.exception.UserAlreadyExistsException;
 import com.example.backend.security.data.entity.RefreshToken;
 import com.example.backend.util.FacultyNumberGenerator;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +29,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuthenticationService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
     private final UserInfoRepository userInfoRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -74,8 +77,10 @@ public class AuthenticationService {
         if (UserRole.STUDENT.name().equals(registerUserDTO.getRole())) {
             Student student = new Student();
             student.setUserInfo(userInfo);
-            student.setFacultyNumber(facultyNumberGenerator.generateUnique());
+            student.setId(facultyNumberGenerator.generateUnique());
             studentRepository.save(student);
+            log.info("Saved student with faculty number: {}", student.getId());
+
         } else if (UserRole.TEACHER.name().equals(registerUserDTO.getRole()) && registerUserDTO.getAcademicRank() != null) {
             Teacher teacher = new Teacher();
             teacher.setAcademicRank(registerUserDTO.getAcademicRank());

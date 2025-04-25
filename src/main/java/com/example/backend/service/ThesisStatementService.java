@@ -7,6 +7,7 @@ import com.example.backend.data.repository.ThesisStatementRepository;
 import com.example.backend.dto.ThesisStatementDTO;
 import com.example.backend.enums.ApprovalStatus;
 import com.example.backend.exception.ConflictException;
+import com.example.backend.exception.ForbiddenActionException;
 import com.example.backend.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,11 +26,11 @@ public class ThesisStatementService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         ThesisApplication application = thesisApplicationRepository
-                .findByIdAndStudent_UserInfo_Email(dto.getThesisApplicationId(), email)
+                .findByStudent_UserInfo_EmailAndActiveTrue(email)
                 .orElseThrow(() -> new ResourceNotFoundException("Thesis application not found or not owned by current user"));
 
         if (application.getThesisApproval().getStatus() != ApprovalStatus.APPROVED) {
-            throw new ConflictException("Thesis application is not approved");
+            throw new ForbiddenActionException("Thesis application is not approved");
         }
 
         if (application.getThesisStatement() != null) {
@@ -55,7 +56,6 @@ public class ThesisStatementService {
         ThesisStatementDTO dto = new ThesisStatementDTO();
         dto.setTitle(statement.getTitle());
         dto.setBody(statement.getBody());
-        dto.setThesisApplicationId(statement.getThesisApplication().getId());
         return dto;
     }
 }

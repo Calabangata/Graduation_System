@@ -7,6 +7,7 @@ import com.example.backend.data.repository.DepartmentRepository;
 import com.example.backend.data.repository.TeacherRepository;
 import com.example.backend.dto.DepartmentDTO;
 import com.example.backend.dto.UserInfoDTO;
+import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,11 @@ public class DepartmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Department with name '" + departmentName + "' not found"));
         Teacher teacher = teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+
+        // Check if the teacher is already assigned to the department
+        if (teacher.getDepartment() != null) {
+            throw new ConflictException("Teacher is already assigned to a department");
+        }
         teacher.setDepartment(department);
         teacherRepository.save(teacher);
     }

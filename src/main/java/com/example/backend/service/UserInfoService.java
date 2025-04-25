@@ -49,7 +49,7 @@ public class UserInfoService {
     }
 
     public void deleteStudentByFacultyNumber(String facultyNumber) {
-        Optional<Student> optionalStudent = studentRepository.findByFacultyNumber(facultyNumber);
+        Optional<Student> optionalStudent = studentRepository.findById(facultyNumber);
         if (optionalStudent.isEmpty()) {
             throw new ResourceNotFoundException("Student with faculty number " + facultyNumber + " not found");
         }

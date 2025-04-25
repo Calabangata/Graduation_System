@@ -8,8 +8,10 @@ import java.util.Optional;
 
 @Repository
 public interface ThesisApplicationRepository extends JpaRepository<ThesisApplication, Long> {
-    boolean existsByStudentIdAndActiveTrue(Long studentId);
+    boolean existsByStudentIdAndActiveTrue(String studentId);
 
     Optional<ThesisApplication> findByIdAndStudent_UserInfo_Email(Long id, String email);
+
+    Optional<ThesisApplication> findByStudent_UserInfo_EmailAndActiveTrue(String email);
 
 }

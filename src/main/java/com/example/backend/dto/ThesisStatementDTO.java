@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 public class ThesisStatementDTO {
     private String title;
     private String body;
-    private Long thesisApplicationId;
 }

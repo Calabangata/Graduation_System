@@ -21,7 +21,7 @@ public class FacultyNumberGenerator {
     public String generateUnique() {
         return IntStream.range(0, MAX_ATTEMPTS)
                 .mapToObj(i -> PREFIX + String.format("%0" + DIGITS + "d", random.nextInt((int) Math.pow(10, DIGITS))))
-                .filter(fn -> studentRepository.findByFacultyNumber(fn).isEmpty())
+                .filter(fn -> studentRepository.findById(fn).isEmpty())
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Unable to generate unique faculty number after " + MAX_ATTEMPTS + " attempts"));
     }

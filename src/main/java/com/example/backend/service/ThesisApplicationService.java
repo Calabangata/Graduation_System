@@ -35,6 +35,11 @@ public class ThesisApplicationService {
         Student student = studentRepository.findById(dto.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
+        //TODO: Remove this, its for debugging
+        ThesisApplication existingApplication = thesisApplicationRepository
+                .findByStudent_UserInfo_EmailAndActiveTrue(student.getUserInfo().getEmail())
+                .orElse(null);
+
         boolean hasActiveApplication = thesisApplicationRepository.existsByStudentIdAndActiveTrue(student.getId());
         if (hasActiveApplication) {
             throw new ConflictException("Student already has an active thesis application");
