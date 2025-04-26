@@ -5,10 +5,9 @@ import com.example.backend.service.ThesisStatementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,5 +21,11 @@ public class ThesisStatementController {
     public ResponseEntity<ThesisStatementDTO> createStatement(@RequestBody ThesisStatementDTO dto) {
         ThesisStatementDTO created = thesisStatementService.create(dto);
         return ResponseEntity.status(201).body(created); // simple 201, no Location header
+    }
+
+    @GetMapping("/grade-range")
+    public ResponseEntity<List<ThesisStatementDTO>> getStatementsByGradeRange(@RequestParam int minGrade, @RequestParam int maxGrade) {
+        List<ThesisStatementDTO> results = thesisStatementService.findByGradeRange(minGrade, maxGrade);
+        return ResponseEntity.ok(results);
     }
 }

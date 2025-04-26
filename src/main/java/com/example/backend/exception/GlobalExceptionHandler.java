@@ -76,6 +76,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(detail);
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ProblemDetail> handleBadRequestException(BadRequestException exception) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST.value(), exception, "Bad request");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
+    }
+
     private ProblemDetail createProblemDetail(int statusCode, Exception exception, String description) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.valueOf(statusCode),

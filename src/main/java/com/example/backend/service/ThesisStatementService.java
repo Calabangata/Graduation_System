@@ -6,6 +6,7 @@ import com.example.backend.data.repository.ThesisApplicationRepository;
 import com.example.backend.data.repository.ThesisStatementRepository;
 import com.example.backend.dto.ThesisStatementDTO;
 import com.example.backend.enums.ApprovalStatus;
+import com.example.backend.exception.BadRequestException;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ForbiddenActionException;
 import com.example.backend.exception.ResourceNotFoundException;
@@ -13,6 +14,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -53,5 +56,14 @@ public class ThesisStatementService {
         dto.setTitle(statement.getTitle());
         dto.setBody(statement.getBody());
         return dto;
+    }
+
+    public List<ThesisStatementDTO> findByGradeRange(int minGrade, int maxGrade) {
+        if (minGrade < 2 || maxGrade > 6 || minGrade > maxGrade) {
+            throw new BadRequestException("Invalid grade range: min must be >= 2, max must be <= 6, and min must be <= max.");
+        }
+
+        List<ThesisStatement> results = thesisStatementRepository.findAllByGradeBetween(minGrade, maxGrade);
+        return results.stream().map(this::toDto).toList();
     }
 }

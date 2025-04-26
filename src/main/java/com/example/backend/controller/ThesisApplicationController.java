@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/thesis-applications")
 @RequiredArgsConstructor
@@ -42,5 +44,27 @@ public class ThesisApplicationController {
     public ResponseEntity<String> evaluateVotes(@PathVariable Long applicationId) {
         thesisApplicationService.evaluateVotes(applicationId);
         return ResponseEntity.ok("Evaluation completed.");
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllThesisApplications() {
+        return ResponseEntity.ok(thesisApplicationService.getAllThesisApplications());
+    }
+
+    @GetMapping("/all/{studentId}")
+    public ResponseEntity<?> getAllThesisApplicationsByStudentId(@PathVariable String studentId) {
+        return ResponseEntity.ok(thesisApplicationService.getAllThesisApplicationsByStudentId(studentId));
+    }
+
+    //mapping for finding thesis applications by supervisor id and approval status
+    @GetMapping("/supervisor/{supervisorId}")
+    public ResponseEntity<?> getThesisApplicationsBySupervisorId(@PathVariable Long supervisorId, @RequestParam String approvalStatus) {
+        return ResponseEntity.ok(thesisApplicationService.getThesisApplicationsBySupervisorId(supervisorId, approvalStatus));
+    }
+
+    @GetMapping("/search-by-topic")
+    public ResponseEntity<List<ThesisApplicationResponseDTO>> searchApplicationsByTopic(@RequestParam String keyword) {
+        List<ThesisApplicationResponseDTO> results = thesisApplicationService.searchByTopic(keyword);
+        return ResponseEntity.ok(results);
     }
 }

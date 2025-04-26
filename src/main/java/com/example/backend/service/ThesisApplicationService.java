@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 
@@ -169,5 +171,42 @@ public class ThesisApplicationService {
             thesisApprovalRepository.delete(approval);
         }
         thesisApplicationRepository.delete(application);
+    }
+
+    public List<ThesisApplicationResponseDTO> getAllThesisApplications() {
+        //Find all thesis applications
+        return thesisApplicationRepository.findAll().stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<ThesisApplicationResponseDTO> getAllThesisApplicationsByStudentId(String studentId) {
+        //Find all thesis applications by student ID
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
+
+        return student.getThesisApplications().stream()
+                .map(this::toDto)
+                .toList();
+
+    }
+
+    public List<ThesisApplicationResponseDTO> getThesisApplicationsBySupervisorId(Long supervisorId, String approvalStatus) {
+        //Find all thesis applications by supervisor ID and approval status
+        Teacher supervisor = teacherRepository.findById(supervisorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Supervisor not found"));
+
+        //TODO: add validation for approval status
+        ApprovalStatus status = ApprovalStatus.valueOf(approvalStatus.toUpperCase());
+        return thesisApplicationRepository.findAllByThesisApproval_StatusAndSupervisor_Id(status, supervisor.getId()).stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<ThesisApplicationResponseDTO> searchByTopic(String keyword) {
+        // Find all thesis applications by topic
+        return thesisApplicationRepository.findAllByTopicContaining(keyword).stream()
+                .map(this::toDto)
+                .toList();
     }
 }

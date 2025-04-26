@@ -1,5 +1,6 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.response.StudentCountThesisReviewDecisionDTO;
 import com.example.backend.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,5 +19,10 @@ public class StudentController {
     public ResponseEntity<Void> deactivateStudentAccount(@PathVariable String email) {
         studentService.deactivateStudentAccount(email);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/review-count")
+    public ResponseEntity<StudentCountThesisReviewDecisionDTO> countByReviewStatus(@RequestParam String status) {
+        return ResponseEntity.ok(studentService.countStudentsByReviewDecision(status));
     }
 }
