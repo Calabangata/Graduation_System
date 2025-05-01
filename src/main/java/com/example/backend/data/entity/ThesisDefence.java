@@ -25,6 +25,10 @@ public class ThesisDefence {
     @Column(name = "location")
     private String location;
 
+    @ManyToOne
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
+
     @ManyToMany
     @JoinTable(name = "defence_students", joinColumns = @JoinColumn(name = "defence_id"), inverseJoinColumns = @JoinColumn(name = "student_id"))
     private List<Student> students;

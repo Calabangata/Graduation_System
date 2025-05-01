@@ -28,4 +28,6 @@ public interface ThesisApplicationRepository extends JpaRepository<ThesisApplica
             """)
     List<ThesisApplication> findAllByTopicContaining(@Param("keyword") String keyword);
 
+    Optional<ThesisApplication> findByStudentIdAndActiveTrue(String studentId);
+
 }

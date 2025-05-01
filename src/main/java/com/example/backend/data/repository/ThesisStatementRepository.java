@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ThesisStatementRepository extends JpaRepository<ThesisStatement, Long> {
@@ -15,4 +16,6 @@ public interface ThesisStatementRepository extends JpaRepository<ThesisStatement
                 WHERE ts.grade BETWEEN :minGrade AND :maxGrade
             """)
     List<ThesisStatement> findAllByGradeBetween(@Param("minGrade") int minGrade, @Param("maxGrade") int maxGrade);
+
+    Optional<ThesisStatement> findByThesisApplicationId(Long id);
 }

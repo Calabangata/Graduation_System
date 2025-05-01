@@ -1,6 +1,7 @@
 package com.example.backend.controller;
 
 import com.example.backend.dto.ThesisStatementDTO;
+import com.example.backend.dto.request.GradeThesisDTO;
 import com.example.backend.service.ThesisStatementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +28,12 @@ public class ThesisStatementController {
     public ResponseEntity<List<ThesisStatementDTO>> getStatementsByGradeRange(@RequestParam int minGrade, @RequestParam int maxGrade) {
         List<ThesisStatementDTO> results = thesisStatementService.findByGradeRange(minGrade, maxGrade);
         return ResponseEntity.ok(results);
+    }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @PatchMapping("/grade")
+    public ResponseEntity<String> gradeThesis(@RequestBody GradeThesisDTO dto) {
+        thesisStatementService.gradeThesis(dto);
+        return ResponseEntity.ok("Thesis graded successfully.");
     }
 }

@@ -46,22 +46,26 @@ public class ThesisApplicationController {
         return ResponseEntity.ok("Evaluation completed.");
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @GetMapping("/all")
     public ResponseEntity<?> getAllThesisApplications() {
         return ResponseEntity.ok(thesisApplicationService.getAllThesisApplications());
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @GetMapping("/all/{studentId}")
     public ResponseEntity<?> getAllThesisApplicationsByStudentId(@PathVariable String studentId) {
         return ResponseEntity.ok(thesisApplicationService.getAllThesisApplicationsByStudentId(studentId));
     }
 
     //mapping for finding thesis applications by supervisor id and approval status
+    @PreAuthorize("hasRole('TEACHER')")
     @GetMapping("/supervisor/{supervisorId}")
     public ResponseEntity<?> getThesisApplicationsBySupervisorId(@PathVariable Long supervisorId, @RequestParam String approvalStatus) {
         return ResponseEntity.ok(thesisApplicationService.getThesisApplicationsBySupervisorId(supervisorId, approvalStatus));
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @GetMapping("/search-by-topic")
     public ResponseEntity<List<ThesisApplicationResponseDTO>> searchApplicationsByTopic(@RequestParam String keyword) {
         List<ThesisApplicationResponseDTO> results = thesisApplicationService.searchByTopic(keyword);

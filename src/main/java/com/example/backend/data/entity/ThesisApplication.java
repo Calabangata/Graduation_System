@@ -30,9 +30,6 @@ public class ThesisApplication {
     @Column(name = "tech_stack", nullable = false)
     private String techStack;
 
-    @Column(name = "is_approved")
-    private boolean isApproved;
-
     @Column(name = "is_active")
     private boolean active = true;
 

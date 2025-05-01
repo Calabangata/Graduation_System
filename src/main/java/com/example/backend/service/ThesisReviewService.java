@@ -59,6 +59,7 @@ public class ThesisReviewService {
 
     private ThesisReviewResponseDTO toDto(ThesisReview savedReview) {
         ThesisReviewResponseDTO dto = new ThesisReviewResponseDTO();
+        dto.setTitle(savedReview.getThesisStatement().getTitle());
         dto.setBody(savedReview.getBody());
         dto.setDateOfUpload(savedReview.getDateOfUpload());
         dto.setId(savedReview.getId());

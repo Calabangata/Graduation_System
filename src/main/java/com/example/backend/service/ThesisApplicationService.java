@@ -37,6 +37,10 @@ public class ThesisApplicationService {
         Student student = studentRepository.findById(dto.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
+        if (student.isGraduated()) {
+            throw new ConflictException("Student has already graduated and cannot submit a thesis application.");
+        }
+
         //TODO: Remove this, its for debugging
         ThesisApplication existingApplication = thesisApplicationRepository
                 .findByStudent_UserInfo_EmailAndActiveTrue(student.getUserInfo().getEmail())
@@ -80,8 +84,10 @@ public class ThesisApplicationService {
     }
 
     public void voteOnThesis(VoteOnThesisDTO dto) {
-        Teacher teacher = teacherRepository.findById(dto.getTeacherId())
-                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Teacher teacher = teacherRepository
+                .findByUserInfo_Email(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Teacher not found or not owned by current user"));
 
         ThesisApplication application = thesisApplicationRepository.findById(dto.getThesisApplicationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Thesis application not found"));
@@ -116,7 +122,7 @@ public class ThesisApplicationService {
         dto.setPurpose(app.getPurpose());
         dto.setTasks(app.getTasks());
         dto.setTechStack(app.getTechStack());
-        dto.setApproved(app.isApproved());
+        dto.setApproved(app.getThesisApproval().getStatus() == ApprovalStatus.APPROVED);
         dto.setStudentId(app.getStudent().getId());
         dto.setSupervisorId(app.getSupervisor().getId());
         dto.setSupervisorName(app.getSupervisor().getUserInfo().getFirstName() + " " + app.getSupervisor().getUserInfo().getLastName());

@@ -21,6 +21,7 @@ public class StudentController {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @GetMapping("/review-count")
     public ResponseEntity<StudentCountThesisReviewDecisionDTO> countByReviewStatus(@RequestParam String status) {
         return ResponseEntity.ok(studentService.countStudentsByReviewDecision(status));
