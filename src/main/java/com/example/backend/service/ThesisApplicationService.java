@@ -117,13 +117,11 @@ public class ThesisApplicationService {
 
     private ThesisApplicationResponseDTO toDto(ThesisApplication app) {
         ThesisApplicationResponseDTO dto = new ThesisApplicationResponseDTO();
-        dto.setId(app.getId());
         dto.setTopic(app.getTopic());
         dto.setPurpose(app.getPurpose());
         dto.setTasks(app.getTasks());
         dto.setTechStack(app.getTechStack());
         dto.setApproved(app.getThesisApproval().getStatus() == ApprovalStatus.APPROVED);
-        dto.setStudentId(app.getStudent().getId());
         dto.setSupervisorId(app.getSupervisor().getId());
         dto.setSupervisorName(app.getSupervisor().getUserInfo().getFirstName() + " " + app.getSupervisor().getUserInfo().getLastName());
         dto.setDepartmentName(app.getSupervisor().getDepartment().getName());
@@ -150,7 +148,7 @@ public class ThesisApplicationService {
                 .filter(a -> a.getApprovalStatus() == ApprovalStatus.REJECTED)
                 .count();
 
-        if (positiveVotes >= totalVotes / 2) {
+        if (positiveVotes >= totalVotes / 2 && positiveVotes > negativeVotes) {
             approval.setStatus(ApprovalStatus.APPROVED);
             thesisApprovalRepository.save(approval);
         } else if (negativeVotes > totalVotes / 2) {
@@ -202,8 +200,7 @@ public class ThesisApplicationService {
         Teacher supervisor = teacherRepository.findById(supervisorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Supervisor not found"));
 
-        //TODO: add validation for approval status
-        ApprovalStatus status = ApprovalStatus.valueOf(approvalStatus.toUpperCase());
+        ApprovalStatus status = ApprovalStatus.fromString(approvalStatus);
         return thesisApplicationRepository.findAllByThesisApproval_StatusAndSupervisor_Id(status, supervisor.getId()).stream()
                 .map(this::toDto)
                 .toList();

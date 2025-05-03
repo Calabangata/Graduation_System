@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ThesisReviewResponseDTO {
-    private Long id;
     private String title;
     private String body;
     private LocalDateTime dateOfUpload;

@@ -44,7 +44,7 @@ public class ThesisReviewService {
 
         // Create a new review entity
         ThesisReview review = new ThesisReview();
-        review.setBody(dto.getTitle());
+        review.setTitle(dto.getTitle());
         review.setBody(dto.getBody());
         review.setThesisStatement(thesisStatement);
         review.setReviewer(teacher);
@@ -59,10 +59,9 @@ public class ThesisReviewService {
 
     private ThesisReviewResponseDTO toDto(ThesisReview savedReview) {
         ThesisReviewResponseDTO dto = new ThesisReviewResponseDTO();
-        dto.setTitle(savedReview.getThesisStatement().getTitle());
+        dto.setTitle(savedReview.getTitle());
         dto.setBody(savedReview.getBody());
         dto.setDateOfUpload(savedReview.getDateOfUpload());
-        dto.setId(savedReview.getId());
         dto.setReviewerName(savedReview.getReviewer().getUserInfo().getFirstName() + " " + savedReview.getReviewer().getUserInfo().getLastName());
         dto.setApprovalDecision(savedReview.getApprovalDecision());
         return dto;

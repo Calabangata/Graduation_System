@@ -21,6 +21,10 @@ public class ThesisReview {
     private Long id;
 
     @NotNull
+    @Column(name = "title", nullable = false)
+    private String title;
+
+    @NotNull
     @Column(name = "body", nullable = false)
     private String body;
 

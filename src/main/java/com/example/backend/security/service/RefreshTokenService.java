@@ -1,7 +1,6 @@
 package com.example.backend.security.service;
 
 import com.example.backend.data.entity.UserInfo;
-import com.example.backend.data.repository.UserInfoRepository;
 import com.example.backend.security.data.entity.RefreshToken;
 import com.example.backend.security.data.repository.RefreshTokenRepository;
 import com.example.backend.security.exception.TokenExpiredException;
@@ -19,12 +18,9 @@ public class RefreshTokenService {
     private Long refreshExpirationMs;
 
     private final RefreshTokenRepository refreshTokenRepository;
-    private final UserInfoRepository userInfoRepository;
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository,
-                               UserInfoRepository userInfoRepository) {
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.userInfoRepository = userInfoRepository;
     }
 
     public RefreshToken createRefreshToken(UserInfo user) {
