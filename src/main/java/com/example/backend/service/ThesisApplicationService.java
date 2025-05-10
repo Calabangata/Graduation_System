@@ -37,8 +37,8 @@ public class ThesisApplicationService {
         Student student = studentRepository.findById(dto.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        if (student.isGraduated()) {
-            throw new ConflictException("Student has already graduated and cannot submit a thesis application.");
+        if (student.isGraduated() || !student.getUserInfo().isActive()) {
+            throw new ConflictException("Student is either graduated or not active and cannot submit a thesis application.");
         }
 
         //TODO: Remove this, its for debugging
@@ -122,7 +122,6 @@ public class ThesisApplicationService {
         dto.setTasks(app.getTasks());
         dto.setTechStack(app.getTechStack());
         dto.setApproved(app.getThesisApproval().getStatus() == ApprovalStatus.APPROVED);
-        dto.setSupervisorId(app.getSupervisor().getId());
         dto.setSupervisorName(app.getSupervisor().getUserInfo().getFirstName() + " " + app.getSupervisor().getUserInfo().getLastName());
         dto.setDepartmentName(app.getSupervisor().getDepartment().getName());
         dto.setApprovalStatus(app.getThesisApproval().getStatus().name());
@@ -154,6 +153,10 @@ public class ThesisApplicationService {
         } else if (negativeVotes > totalVotes / 2) {
             approval.setStatus(ApprovalStatus.REJECTED);
             thesisApprovalRepository.save(approval);
+            //making thesis application inactive
+            ThesisApplication application = approval.getThesisApplication();
+            application.setActive(false);
+            thesisApplicationRepository.save(application);
         }
     }
 
@@ -168,9 +171,7 @@ public class ThesisApplicationService {
         if (application.getThesisApproval() != null) {
             ThesisApproval approval = application.getThesisApproval();
             if (approval.getTeacherApprovals() != null) {
-                for (TeacherApproval teacherApproval : approval.getTeacherApprovals()) {
-                    teacherApprovalRepository.delete(teacherApproval);
-                }
+                approval.getTeacherApprovals().forEach(teacherApprovalRepository::delete);
             }
             thesisApprovalRepository.delete(approval);
         }

@@ -9,7 +9,6 @@ public class ThesisApplicationResponseDTO {
     private String tasks;
     private String techStack;
     private boolean isApproved;
-    private Long supervisorId;
     private String supervisorName;
     private String departmentName;
     private String approvalStatus;

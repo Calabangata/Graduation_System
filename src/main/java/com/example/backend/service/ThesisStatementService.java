@@ -1,9 +1,6 @@
 package com.example.backend.service;
 
-import com.example.backend.data.entity.Student;
-import com.example.backend.data.entity.Teacher;
-import com.example.backend.data.entity.ThesisApplication;
-import com.example.backend.data.entity.ThesisStatement;
+import com.example.backend.data.entity.*;
 import com.example.backend.data.repository.*;
 import com.example.backend.dto.ThesisStatementDTO;
 import com.example.backend.dto.request.GradeThesisDTO;
@@ -19,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -51,7 +49,7 @@ public class ThesisStatementService {
         ThesisStatement statement = new ThesisStatement();
         statement.setTitle(dto.getTitle());
         statement.setBody(dto.getBody());
-        statement.setGrade(null); // explicitly null
+        statement.setGrade(null);
         statement.setThesisApplication(application);
         ThesisStatement saved = thesisStatementRepository.save(statement);
         thesisApplicationRepository.save(application);
@@ -68,24 +66,23 @@ public class ThesisStatementService {
         Student student = studentRepository.findById(dto.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
 
-        boolean participated = thesisDefenceRepository.existsByStudents_Id(student.getId());
-
-        if (!participated) {
-            throw new ConflictException("Student has not participated in a thesis defence");
+        ThesisDefence defence = thesisDefenceRepository.findByStudents_Id(student.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("No thesis defence found for this student"));
+        if (defence.getDate().isAfter(LocalDateTime.now())) {
+            throw new ConflictException("Thesis defence has not occurred yet. Grading not allowed before defence.");
         }
-        //check if the current user is one of the teachers, present in student's thesis defence
-        boolean teacherAssigned = thesisDefenceRepository.existsByStudents_IdAndTeachers_Id(student.getId(), teacher.getId());
-        if (!teacherAssigned) {
+        if (defence.getTeachers().stream()
+                .noneMatch(t -> t.getId().equals(teacher.getId()))) {
             throw new ConflictException("You are not assigned to this student's defence session");
         }
 
         ThesisApplication activeApplication = student.getThesisApplications().stream()
                 .filter(ThesisApplication::isActive)
                 .findFirst()
-                .orElseThrow(() -> new ConflictException("Student does not have an active thesis application"));
+                .orElseThrow(() -> new ResourceNotFoundException("Student does not have an active thesis application"));
 
         ThesisStatement thesisStatement = thesisStatementRepository.findByThesisApplicationId(activeApplication.getId())
-                .orElseThrow(() -> new ConflictException("No thesis statement found for the student's active application"));
+                .orElseThrow(() -> new ResourceNotFoundException("No thesis statement found for the student's active application"));
 
         if (thesisStatement.getGrade() != null) {
             throw new ConflictException("Thesis statement is already graded");

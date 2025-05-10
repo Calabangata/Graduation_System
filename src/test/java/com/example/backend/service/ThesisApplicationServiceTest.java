@@ -251,6 +251,7 @@ public class ThesisApplicationServiceTest {
         ThesisApplication application = new ThesisApplication();
         application.setId(1L);
         application.setThesisApproval(approval);
+        approval.setThesisApplication(application);
 
         when(thesisApplicationRepository.findById(1L)).thenReturn(Optional.of(application));
 

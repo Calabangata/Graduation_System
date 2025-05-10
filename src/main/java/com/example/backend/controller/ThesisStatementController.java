@@ -24,6 +24,7 @@ public class ThesisStatementController {
         return ResponseEntity.status(201).body(created); // simple 201, no Location header
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @GetMapping("/grade-range")
     public ResponseEntity<List<ThesisStatementDTO>> getStatementsByGradeRange(@RequestParam int minGrade, @RequestParam int maxGrade) {
         List<ThesisStatementDTO> results = thesisStatementService.findByGradeRange(minGrade, maxGrade);

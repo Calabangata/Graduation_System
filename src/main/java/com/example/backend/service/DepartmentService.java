@@ -37,7 +37,6 @@ public class DepartmentService {
         Teacher teacher = teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new ResourceNotFoundException("Teacher not found"));
 
-        // Check if the teacher is already assigned to the department
         if (teacher.getDepartment() != null) {
             throw new ConflictException("Teacher is already assigned to a department");
         }
@@ -54,7 +53,6 @@ public class DepartmentService {
                 .map(teacher -> {
                     UserInfo user = teacher.getUserInfo();
                     UserInfoDTO dto = new UserInfoDTO();
-                    dto.setId(user.getId());
                     dto.setFirstName(user.getFirstName());
                     dto.setLastName(user.getLastName());
                     dto.setEmail(user.getEmail());
