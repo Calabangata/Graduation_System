@@ -26,6 +26,9 @@ public class DepartmentService {
     }
 
     public Department createDepartment(DepartmentDTO departmentDTO) {
+        if(departmentRepository.existsByName(departmentDTO.getDepartmentName())) {
+            throw new ConflictException("Department with name '" + departmentDTO.getDepartmentName() + "' already exists");
+        }
         Department department = new Department();
         department.setName(departmentDTO.getDepartmentName());
         return departmentRepository.save(department);

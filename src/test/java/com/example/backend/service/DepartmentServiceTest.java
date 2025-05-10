@@ -126,6 +126,15 @@ public class DepartmentServiceTest {
                 () -> departmentService.getTeachersByDepartmentName("Nonexistent"));
     }
 
+    @Test
+    void createDepartment_shouldThrowIfAlreadyExists() {
+        DepartmentDTO dto = new DepartmentDTO();
+        dto.setDepartmentName("IT");
 
+        when(departmentRepository.existsByName("IT")).thenReturn(true);
+
+        ConflictException ex =assertThrows(ConflictException.class,
+                () -> departmentService.createDepartment(dto));
+        assertEquals("Department with name 'IT' already exists", ex.getMessage());
+    }
 }
-
