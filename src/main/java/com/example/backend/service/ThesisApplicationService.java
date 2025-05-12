@@ -121,7 +121,6 @@ public class ThesisApplicationService {
         dto.setPurpose(app.getPurpose());
         dto.setTasks(app.getTasks());
         dto.setTechStack(app.getTechStack());
-        dto.setApproved(app.getThesisApproval().getStatus() == ApprovalStatus.APPROVED);
         dto.setSupervisorName(app.getSupervisor().getUserInfo().getFirstName() + " " + app.getSupervisor().getUserInfo().getLastName());
         dto.setDepartmentName(app.getSupervisor().getDepartment().getName());
         dto.setApprovalStatus(app.getThesisApproval().getStatus().name());
@@ -139,7 +138,6 @@ public class ThesisApplicationService {
     }
 
     private void evaluateApprovalStatus(ThesisApproval approval) {
-        long totalVotes = approval.getTeacherApprovals().size();
         long positiveVotes = approval.getTeacherApprovals().stream()
                 .filter(a -> a.getApprovalStatus() == ApprovalStatus.APPROVED)
                 .count();
@@ -147,10 +145,10 @@ public class ThesisApplicationService {
                 .filter(a -> a.getApprovalStatus() == ApprovalStatus.REJECTED)
                 .count();
 
-        if (positiveVotes >= totalVotes / 2 && positiveVotes > negativeVotes) {
+        if (positiveVotes >= negativeVotes) {
             approval.setStatus(ApprovalStatus.APPROVED);
             thesisApprovalRepository.save(approval);
-        } else if (negativeVotes > totalVotes / 2) {
+        } else  {
             approval.setStatus(ApprovalStatus.REJECTED);
             thesisApprovalRepository.save(approval);
             //making thesis application inactive

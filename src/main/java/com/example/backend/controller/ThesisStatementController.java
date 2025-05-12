@@ -37,4 +37,11 @@ public class ThesisStatementController {
         thesisStatementService.gradeThesis(dto);
         return ResponseEntity.ok("Thesis graded successfully.");
     }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    @DeleteMapping("/{statementId}")
+    public ResponseEntity<Void> deleteStatement(@PathVariable Long statementId) {
+        thesisStatementService.deleteThesisStatement(statementId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -6,6 +6,7 @@ import com.example.backend.data.repository.RoleRepository;
 import com.example.backend.data.repository.UserInfoRepository;
 import com.example.backend.dto.request.RegisterUserDTO;
 import com.example.backend.enums.UserRole;
+import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.security.service.AuthenticationService;
 import org.junit.jupiter.api.Test;
@@ -34,8 +35,6 @@ public class UserInfoServiceTest {
 
     @InjectMocks
     private UserInfoService service;
-//    @InjectMocks
-//    private AuthenticationService authenticationService;
 
     @Test
     void getAllUsers_shouldReturnAll() {
@@ -86,13 +85,15 @@ public class UserInfoServiceTest {
     void activateUser_shouldThrow_ifAlreadyActive() {
         UserInfo user = new UserInfo(); user.setActive(true);
         when(userInfoRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
-        assertThrows(ResourceNotFoundException.class, () -> service.activateUser("test@example.com"));
+        ConflictException ex = assertThrows(ConflictException.class, () -> service.activateUser("test@example.com"));
+        assertEquals("User is already active", ex.getMessage());
     }
 
     @Test
     void activateUser_shouldThrow_ifNotFound() {
         when(userInfoRepository.findByEmail("test@example.com")).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> service.activateUser("test@example.com"));
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class, () -> service.activateUser("test@example.com"));
+        assertEquals("User not found", ex.getMessage());
     }
 
     @Test
@@ -110,13 +111,15 @@ public class UserInfoServiceTest {
     void deactivateUser_shouldThrow_ifAlreadyInactive() {
         UserInfo user = new UserInfo(); user.setActive(false);
         when(userInfoRepository.findByEmail("a@b.com")).thenReturn(Optional.of(user));
-        assertThrows(ResourceNotFoundException.class, () -> service.deactivateUser("a@b.com"));
+        ConflictException ex = assertThrows(ConflictException.class, () -> service.deactivateUser("a@b.com"));
+        assertEquals("User is already inactive", ex.getMessage());
     }
 
     @Test
     void deactivateUser_shouldThrow_ifNotFound() {
         when(userInfoRepository.findByEmail("a@b.com")).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> service.deactivateUser("a@b.com"));
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class, () -> service.deactivateUser("a@b.com"));
+        assertEquals("User not found", ex.getMessage());
     }
 
 }

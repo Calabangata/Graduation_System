@@ -35,7 +35,7 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
 
     private void createSuperAdmin() {
         RegisterUserDTO registerUserDTO = new RegisterUserDTO();
-        registerUserDTO.setFirstName("General");
+        registerUserDTO.setFirstName("Admin");
         registerUserDTO.setLastName("Krulev");
         registerUserDTO.setEmail("admin@email.com");
         registerUserDTO.setPassword("123456");

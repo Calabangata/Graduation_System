@@ -7,6 +7,7 @@ import com.example.backend.dto.request.GradeThesisDTO;
 import com.example.backend.enums.ApprovalStatus;
 import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ForbiddenActionException;
+import com.example.backend.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -21,8 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ThesisStatementServiceTest {
@@ -37,6 +37,8 @@ public class ThesisStatementServiceTest {
     private StudentRepository studentRepo;
     @Mock
     private TeacherRepository teacherRepo;
+    @Mock
+    private ThesisReviewRepository thesisReviewRepo;
 
     @InjectMocks
     private ThesisStatementService service;
@@ -254,5 +256,30 @@ public class ThesisStatementServiceTest {
         assertEquals(2, results.size());
     }
 
+    @Test
+    void deleteThesisStatement_shouldThrow_ifStatementNotFound() {
+        when(statementRepo.findById(1L)).thenReturn(Optional.empty());
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class, () -> service.deleteThesisStatement(1L));
+        assertEquals("Thesis statement not found", ex.getMessage());
+    }
 
+    @Test
+    void deleteThesisStatement_shouldThrow_ifGraded() {
+        ThesisStatement statement = new ThesisStatement();
+        statement.setGrade(5);
+        when(statementRepo.findById(1L)).thenReturn(Optional.of(statement));
+        ConflictException ex = assertThrows(ConflictException.class, () -> service.deleteThesisStatement(1L));
+        assertEquals("Thesis statement cannot be deleted after grading", ex.getMessage());
+    }
+
+    @Test
+    void deleteThesisStatement_shouldDelete_ifReviewExists() {
+        ThesisStatement statement = new ThesisStatement();
+        ThesisReview review = new ThesisReview();
+        statement.setThesisReview(review);
+        when(statementRepo.findById(1L)).thenReturn(Optional.of(statement));
+        service.deleteThesisStatement(1L);
+        verify(statementRepo).delete(statement);
+        verify(thesisReviewRepo).delete(review);
+    }
 }

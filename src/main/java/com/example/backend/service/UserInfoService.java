@@ -6,6 +6,7 @@ import com.example.backend.data.repository.RoleRepository;
 import com.example.backend.data.repository.UserInfoRepository;
 import com.example.backend.dto.request.RegisterUserDTO;
 import com.example.backend.enums.UserRole;
+import com.example.backend.exception.ConflictException;
 import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.security.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +46,11 @@ public class UserInfoService {
 
     public void activateUser(String email) {
         Optional<UserInfo> optionalUser = userInfoRepository.findByEmail(email);
-        if (optionalUser.isPresent() && !optionalUser.get().isActive()) {
+        if (optionalUser.isPresent()) {
             UserInfo user = optionalUser.get();
+            if (user.isActive()) {
+                throw new ConflictException("User is already active");
+            }
             user.setActive(true);
             userInfoRepository.save(user);
         } else {
@@ -56,8 +60,11 @@ public class UserInfoService {
 
     public void deactivateUser(String email) {
         Optional<UserInfo> optionalUser = userInfoRepository.findByEmail(email);
-        if (optionalUser.isPresent() && optionalUser.get().isActive()) {
+        if (optionalUser.isPresent()) {
             UserInfo user = optionalUser.get();
+            if (!user.isActive()) {
+                throw new ConflictException("User is already inactive");
+            }
             authenticationService.logout(user.getEmail());
             user.setActive(false);
             userInfoRepository.save(user);

@@ -28,6 +28,7 @@ public class ThesisStatementService {
     private final ThesisDefenceRepository thesisDefenceRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
+    private final ThesisReviewRepository thesisReviewRepository;
     private static final Logger log = LoggerFactory.getLogger(ThesisStatementService.class);
 
     @Transactional
@@ -117,5 +118,22 @@ public class ThesisStatementService {
 
         List<ThesisStatement> results = thesisStatementRepository.findAllByGradeBetween(minGrade, maxGrade);
         return results.stream().map(this::toDto).toList();
+    }
+
+    @Transactional
+    public void deleteThesisStatement(Long statementId) {
+        ThesisStatement statement = thesisStatementRepository.findById(statementId)
+                .orElseThrow(() -> new ResourceNotFoundException("Thesis statement not found"));
+
+        if (statement.getGrade() != null) {
+            throw new ConflictException("Thesis statement cannot be deleted after grading");
+        }
+
+        if(statement.getThesisReview() != null) {
+            ThesisReview review = statement.getThesisReview();
+            thesisReviewRepository.delete(review);
+            log.info("Thesis review with ID [{}] deleted successfully.", review.getId());
+        }
+        thesisStatementRepository.delete(statement);
     }
 }

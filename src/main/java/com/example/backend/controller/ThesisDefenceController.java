@@ -20,7 +20,7 @@ public class ThesisDefenceController {
 
     //endpoint for new thesis defence
     @PostMapping("/new")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     public ResponseEntity<ThesisDefenceResponseDTO> createThesisDefence(@RequestBody CreateThesisDefenceRequestDTO requestDTO) {
         ThesisDefenceResponseDTO response = thesisDefenceService.createDefence(requestDTO);
         return ResponseEntity.ok(response);
