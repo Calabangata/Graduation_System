@@ -31,3 +31,12 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Backend target directory
+/back-end/target/
+
+# Frontend node_modules
+/front-end/node_modules/
+
+# Vite build output (optional if you build React for production)
+/front-end/dist/
