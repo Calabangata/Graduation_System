@@ -40,3 +40,5 @@ build/
 
 # Vite build output (optional if you build React for production)
 /front-end/dist/
+
+*.log
