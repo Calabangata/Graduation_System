@@ -1,0 +1,28 @@
+services:
+  frontend:
+    build:
+      context: ./front-end
+    ports:
+      - "3000:5173"
+    volumes:
+      - ./front-end:/app
+      - /app/node_modules
+    command: npm run dev -- --host
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./back-end
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./back-end:/app
+      - ~/.m2:/root/.m2
+    command: ./mvnw spring-boot:run
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/graduation_system?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
