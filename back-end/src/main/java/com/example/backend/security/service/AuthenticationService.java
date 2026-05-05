@@ -117,9 +117,10 @@ public class AuthenticationService {
         return new LoginResponse(newAccessToken, token, jwtService.getExpirationTime());
     }
 
-    public void logout(String email) {
-        UserInfo user = userInfoRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public void logout(String refreshToken) {
+        RefreshToken token = refreshTokenService.findByToken(refreshToken)
+                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+        UserInfo user = token.getUser();
         refreshTokenService.deleteByUser(user);
     }
 }

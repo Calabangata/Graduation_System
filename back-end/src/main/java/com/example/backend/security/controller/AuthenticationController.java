@@ -5,6 +5,10 @@ import com.example.backend.dto.response.LoginResponse;
 import com.example.backend.dto.LoginUserDTO;
 import com.example.backend.dto.request.RegisterUserDTO;
 import com.example.backend.security.service.AuthenticationService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,18 +28,83 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginUserDTO loginUserDTO) {
-        return ResponseEntity.ok(authenticationService.login(loginUserDTO));
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginUserDTO loginUserDTO, HttpServletResponse response) {
+        LoginResponse loginResponse = authenticationService.login(loginUserDTO);
+        
+        // Set refresh token as httpOnly, secure cookie
+        Cookie refreshTokenCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(false); // Set to true in production with HTTPS
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+        refreshTokenCookie.setAttribute("SameSite", "Strict");
+        response.addCookie(refreshTokenCookie);
+        
+        // Return only accessToken (not refreshToken in body)
+        LoginResponse responseBody = new LoginResponse();
+        responseBody.setAccessToken(loginResponse.getAccessToken());
+        responseBody.setExpirationTime(loginResponse.getExpirationTime());
+        
+        return ResponseEntity.ok(responseBody);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponse> refresh(@RequestParam String token) {
-        return ResponseEntity.ok(authenticationService.refresh(token));
+    public ResponseEntity<LoginResponse> refresh(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = extractRefreshTokenFromCookie(request);
+        
+        if (refreshToken == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        LoginResponse loginResponse = authenticationService.refresh(refreshToken);
+        
+        // Update refresh token cookie if a new one was issued
+        if (loginResponse.getRefreshToken() != null && !loginResponse.getRefreshToken().isEmpty()) {
+            Cookie refreshTokenCookie = new Cookie("refreshToken", loginResponse.getRefreshToken());
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(false); // Set to true in production with HTTPS
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+            refreshTokenCookie.setAttribute("SameSite", "Strict");
+            response.addCookie(refreshTokenCookie);
+        }
+        
+        // Return only accessToken
+        LoginResponse responseBody = new LoginResponse();
+        responseBody.setAccessToken(loginResponse.getAccessToken());
+        responseBody.setExpirationTime(loginResponse.getExpirationTime());
+        
+        return ResponseEntity.ok(responseBody);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestParam String email) {
-        authenticationService.logout(email);
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = extractRefreshTokenFromCookie(request);
+        
+        if (refreshToken != null) {
+            authenticationService.logout(refreshToken);
+        }
+        
+        // Clear refresh token cookie
+        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setSecure(false);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0); // Expire immediately
+        response.addCookie(refreshTokenCookie);
+        
         return ResponseEntity.noContent().build();
+    }
+    
+    private String extractRefreshTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

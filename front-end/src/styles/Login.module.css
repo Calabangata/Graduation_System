@@ -14,7 +14,12 @@
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background-color: #f4f4f4;
+
+  /* Background image settings */
+  background-image: url('../assets/graduationBackground.png'); /* adjust path if needed */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 h2 {

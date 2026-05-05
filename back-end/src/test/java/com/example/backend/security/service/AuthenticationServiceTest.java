@@ -142,8 +142,11 @@ public class AuthenticationServiceTest {
     void logout_shouldClearRefreshTokensForUser() {
         UserInfo user = new UserInfo();
         user.setEmail("logout@example.com");
-        when(userInfoRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-        service.logout(user.getEmail());
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setToken("refresh");
+        refreshToken.setUser(user);
+        when(refreshTokenService.findByToken("refresh")).thenReturn(Optional.of(refreshToken));
+        service.logout(refreshToken.getToken());
         verify(refreshTokenService).deleteByUser(user);
     }
 
