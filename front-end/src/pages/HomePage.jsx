@@ -1,43 +1,49 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import DashboardLayout from '../components/DashboardLayout';
+import styles from '../styles/Dashboard.module.css';
 
 export default function HomePage() {
-  const navigate = useNavigate();
-  const { logout } = useAuth();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/', { replace: true });
-    } catch (error) {
-      console.error('Logout failed:', error);
-      alert('Logout failed. Try again.');
-    }
-  };
-
   return (
-    <div className="p-8">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h1 className="text-2xl font-semibold">Welcome!</h1>
-          <p>This is your blank home page after login.</p>
+    <DashboardLayout>
+      <div className={styles.dashboard}>
+        {/* Page Header */}
+        <div className={styles.header}>
+          <h1>Dashboard</h1>
+          <p>Welcome back! Here's an overview of your graduation system.</p>
         </div>
-        <button 
-          onClick={handleLogout}
-          style={{
-            padding: '0.6rem 1.5rem',
-            backgroundColor: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontWeight: 'bold'
-          }}
-        >
-          Logout
-        </button>
+
+        {/* Stats Cards (Placeholder) */}
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>1,250</div>
+            <div className={styles.statLabel}>Total Students</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>32</div>
+            <div className={styles.statLabel}>Courses</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>85%</div>
+            <div className={styles.statLabel}>Graduation Rate</div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statValue}>3.2</div>
+            <div className={styles.statLabel}>Average GPA</div>
+          </div>
+        </div>
+
+        {/* Main Content Area (Placeholder) */}
+        <div className={styles.contentArea}>
+          <div className={styles.card}>
+            <h2>Student List</h2>
+            <p style={{ color: '#95a5a6' }}>Student list and data coming soon...</p>
+          </div>
+          <div className={styles.card}>
+            <h2>Graduation Statistics</h2>
+            <p style={{ color: '#95a5a6' }}>Analytics chart coming soon...</p>
+          </div>
+        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
 
