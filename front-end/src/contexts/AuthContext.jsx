@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext();
@@ -11,13 +11,23 @@ axios.defaults.withCredentials = true;
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const initializationRef = useRef(false);
+  const interceptorSetupRef = useRef(false);
 
-  // On mount: try to refresh from httpOnly cookie
+  // On mount: try to refresh from httpOnly cookie (runs only once)
   useEffect(() => {
+    // Prevent double execution in React StrictMode
+    if (initializationRef.current) return;
+    initializationRef.current = true;
+
     const initializeAuth = async () => {
       try {
         const response = await axios.post(`${API_BASE}/auth/refresh`);
-        setToken(response.data.accessToken);
+        const accessToken = response.data.accessToken;
+        // Set axios header IMMEDIATELY before state update
+        axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+        // Now update state (this triggers re-renders after axios is ready)
+        setToken(accessToken);
       } catch (error) {
         // No valid refresh token or already expired
         setToken(null);
@@ -28,8 +38,12 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  // Setup axios interceptor for auto-refresh on 401
+  // Setup axios interceptor for auto-refresh on 401 (runs only once)
   useEffect(() => {
+    // Prevent double setup in React StrictMode
+    if (interceptorSetupRef.current) return;
+    interceptorSetupRef.current = true;
+
     const interceptor = axios.interceptors.response.use(
       (response) => response,
       async (error) => {
@@ -43,6 +57,8 @@ export function AuthProvider({ children }) {
             // Try to refresh token using httpOnly cookie
             const response = await axios.post(`${API_BASE}/auth/refresh`);
             const newAccessToken = response.data.accessToken;
+            // Set axios header IMMEDIATELY before state update
+            axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
             setToken(newAccessToken);
             
             // Retry original request with new token
@@ -76,7 +92,10 @@ export function AuthProvider({ children }) {
       password
     });
     // refreshToken is automatically set as httpOnly cookie by backend
-    setToken(response.data.accessToken);
+    const accessToken = response.data.accessToken;
+    // Set axios header IMMEDIATELY before state update
+    axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    setToken(accessToken);
   };
 
   const logout = async () => {

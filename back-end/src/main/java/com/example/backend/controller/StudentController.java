@@ -11,7 +11,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users/students")
@@ -45,5 +47,29 @@ public class StudentController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         return ResponseEntity.ok(studentService.getGraduatedStudentsBetween(start, end));
+    }
+
+    /**
+     * Get total student count based on user role.
+     * Requires authentication. Returns all students if ADMIN, or only supervised students if TEACHER.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'TEACHER')")
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Long>> getTotalStudentCount() {
+        long count = studentService.getTotalStudentCount();
+        Map<String, Long> response = new HashMap<>();
+        response.put("count", count);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Get student list based on user role.
+     * Requires authentication. Returns all students if ADMIN, or only supervised students if TEACHER.
+     */
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'TEACHER')")
+    @GetMapping("/list")
+    public ResponseEntity<List<UserInfoDTO>> getStudentList() {
+        List<UserInfoDTO> students = studentService.getStudentList();
+        return ResponseEntity.ok(students);
     }
 }

@@ -36,4 +36,10 @@ public interface StudentRepository extends JpaRepository<Student, String> {
 
     List<Student> findAllByIdIn(List<String> facultyNumbers);
 
+    // Get all students supervised by a specific teacher
+    List<Student> findByTeacherId(Long teacherId);
+
+    // Count students supervised by a specific teacher
+    long countByTeacherId(Long teacherId);
+
 }
