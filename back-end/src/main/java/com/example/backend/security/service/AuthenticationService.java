@@ -12,6 +12,7 @@ import com.example.backend.dto.LoginUserDTO;
 import com.example.backend.dto.request.RegisterUserDTO;
 import com.example.backend.dto.response.LoginResponse;
 import com.example.backend.enums.UserRole;
+import com.example.backend.exception.InvalidCredentialsException;
 import com.example.backend.exception.UserAlreadyExistsException;
 import com.example.backend.security.data.entity.RefreshToken;
 import com.example.backend.util.FacultyNumberGenerator;
@@ -19,7 +20,6 @@ import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -90,11 +90,22 @@ public class AuthenticationService {
     }
 
     public UserInfo authenticateUser(LoginUserDTO loginUserDTO) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginUserDTO.getEmail(), loginUserDTO.getPassword())
-        );
-        return userInfoRepository.findByEmail(loginUserDTO.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Optional<UserInfo> userOptional = userInfoRepository.findByEmail(loginUserDTO.getEmail());
+        if (userOptional.isEmpty()) {
+            throw new InvalidCredentialsException(
+                    "No account found with this email address.",
+                    "USER_NOT_FOUND"
+            );
+        }
+        UserInfo user = userOptional.get();
+        if (!passwordEncoder.matches(loginUserDTO.getPassword(), user.getPassword())) {
+            // Password incorrect
+            throw new InvalidCredentialsException(
+                    "Email or password is incorrect.",
+                    "INVALID_PASSWORD"
+            );
+        }
+        return user;
     }
 
     public LoginResponse login(LoginUserDTO loginUserDTO) {

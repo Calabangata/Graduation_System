@@ -1,0 +1,137 @@
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 200ms ease-in-out;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  max-width: 450px;
+  width: 90%;
+  z-index: 1001;
+  overflow: hidden;
+  animation: slideUp 300ms ease-in-out;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: #ffebee;
+  border-bottom: 2px solid #f5a5a5;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0; /* Allow flex items to shrink below content size */
+}
+
+.headerIcon {
+  color: #c62828;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.headerTitle {
+  margin: 0;
+  color: #c62828;
+  font-size: 1.2rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #c62828;
+  font-size: 1.5rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color 150ms ease-in-out;
+}
+
+.closeButton:hover {
+  color: #a01a1a;
+}
+
+.content {
+  padding: 24px;
+}
+
+.message {
+  margin: 0;
+  color: #333333;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.okButton {
+  padding: 10px 24px;
+  background-color: #2980b9;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 200ms ease-in-out;
+}
+
+.okButton:hover {
+  background-color: #1e5f8f;
+}
+
+.okButton:active {
+  background-color: #154360;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, -45%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+}

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import TextInput from "../components/TextInput";
+import ErrorModal from "../components/ErrorModal";
 import styles from '../styles/Login.module.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext';
+import { getErrorMessage } from '../constants/errorMessages';
 
 function Login() {
   const navigate = useNavigate();
@@ -15,6 +17,10 @@ function Login() {
   const [errors, setErrors] = useState({
     email: '',
     password: '',
+  });
+  const [errorModal, setErrorModal] = useState({
+    isOpen: false,
+    message: '',
   });
 
   const handleSubmit = async (e) => {
@@ -37,15 +43,36 @@ function Login() {
       // Backend will automatically set httpOnly refresh token cookie
       await login(email, password);
       navigate('/home', { replace: true }); // Redirect to home page after successful login
-      console.log('Login success');
     } catch (error) {
       console.error('Login failed:', error);
-      if (error.response?.status === 401) {
-        alert('Invalid credentials.');
+      
+      // Determine error message based on response data or status code
+      let errorMessage;
+      
+      // Check if backend returned an errorCode in response body
+      if (error.response?.data?.errorCode) {
+        errorMessage = getErrorMessage(error.response.data.errorCode);
+      } else if (error.response?.status === 401) {
+        errorMessage = getErrorMessage('INVALID_CREDENTIALS');
+      } else if (error.response?.status) {
+        errorMessage = getErrorMessage(error.response.status);
       } else {
-        alert('Something went wrong. Try again.');
+        errorMessage = getErrorMessage('NETWORK_ERROR');
       }
+
+      // Show error modal
+      setErrorModal({
+        isOpen: true,
+        message: errorMessage,
+      });
     }
+  };
+
+  const handleCloseErrorModal = () => {
+    setErrorModal({
+      isOpen: false,
+      message: '',
+    });
   };
 
   return (
@@ -72,6 +99,14 @@ function Login() {
           <button type="submit">Login</button>
         </form>
       </div>
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        onClose={handleCloseErrorModal}
+        message={errorModal.message}
+        title="Login Failed"
+      />
     </div>
   );
 

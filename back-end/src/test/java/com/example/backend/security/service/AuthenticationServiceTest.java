@@ -103,16 +103,17 @@ public class AuthenticationServiceTest {
         LoginUserDTO dto = new LoginUserDTO("user@example.com", "pass");
         UserInfo user = new UserInfo();
         user.setEmail("user@example.com");
+        user.setPassword("encodedPassword");
         RefreshToken token = new RefreshToken();
         token.setToken("refresh");
 
         when(userInfoRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("pass", "encodedPassword"))
+                .thenReturn(true);
         when(jwtService.generateToken(user)).thenReturn("access");
         when(jwtService.getExpirationTime()).thenReturn(3600L);
         when(refreshTokenService.createRefreshToken(user)).thenReturn(token);
-
         LoginResponse response = service.login(dto);
-
         assertEquals("access", response.getAccessToken());
         assertEquals("refresh", response.getRefreshToken());
         assertEquals(3600L, response.getExpirationTime());

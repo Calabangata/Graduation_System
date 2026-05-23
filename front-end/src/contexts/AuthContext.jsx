@@ -64,8 +64,13 @@ export function AuthProvider({ children }) {
       async (error) => {
         const originalRequest = error.config;
 
-        // If 401 and not already retried
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        // Don't retry on login/refresh endpoints - they handle their own errors
+        const isAuthEndpoint = originalRequest.url.includes('/auth/login') || 
+                               originalRequest.url.includes('/auth/refresh') ||
+                               originalRequest.url.includes('/auth/logout');
+
+        // If 401 and not already retried and not an auth endpoint
+        if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
           originalRequest._retry = true;
 
           try {
