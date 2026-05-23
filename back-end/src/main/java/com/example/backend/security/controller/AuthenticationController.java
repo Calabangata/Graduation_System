@@ -1,15 +1,18 @@
 package com.example.backend.security.controller;
 
 import com.example.backend.data.entity.UserInfo;
-import com.example.backend.dto.response.LoginResponse;
 import com.example.backend.dto.LoginUserDTO;
 import com.example.backend.dto.request.RegisterUserDTO;
+import com.example.backend.dto.response.CurrentUserResponse;
+import com.example.backend.dto.response.LoginResponse;
 import com.example.backend.security.service.AuthenticationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/api/auth")
@@ -94,6 +97,21 @@ public class AuthenticationController {
         response.addCookie(refreshTokenCookie);
         
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<CurrentUserResponse> getCurrentUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserInfo userInfo = (UserInfo) authentication.getPrincipal();
+        
+        CurrentUserResponse response = new CurrentUserResponse();
+        response.setFirstName(userInfo.getFirstName());
+        response.setLastName(userInfo.getLastName());
+        response.setEmail(userInfo.getEmail());
+        response.setRole(userInfo.getRole().getName().toString());
+        
+        return ResponseEntity.ok(response);
     }
     
     private String extractRefreshTokenFromCookie(HttpServletRequest request) {

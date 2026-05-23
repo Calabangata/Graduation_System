@@ -10,9 +10,21 @@ axios.defaults.withCredentials = true;
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const initializationRef = useRef(false);
   const interceptorSetupRef = useRef(false);
+
+  // Fetch current user info
+  const fetchUserInfo = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/auth/me`);
+      setUserInfo(response.data);
+    } catch (error) {
+      console.error('Failed to fetch user info:', error);
+      setUserInfo(null);
+    }
+  };
 
   // On mount: try to refresh from httpOnly cookie (runs only once)
   useEffect(() => {
@@ -28,9 +40,12 @@ export function AuthProvider({ children }) {
         axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
         // Now update state (this triggers re-renders after axios is ready)
         setToken(accessToken);
+        // Fetch user info
+        await fetchUserInfo();
       } catch (error) {
         // No valid refresh token or already expired
         setToken(null);
+        setUserInfo(null);
       } finally {
         setLoading(false);
       }
@@ -60,6 +75,8 @@ export function AuthProvider({ children }) {
             // Set axios header IMMEDIATELY before state update
             axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
             setToken(newAccessToken);
+            // Fetch user info
+            await fetchUserInfo();
             
             // Retry original request with new token
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -67,6 +84,7 @@ export function AuthProvider({ children }) {
           } catch (refreshError) {
             // Refresh failed - user must login again
             setToken(null);
+            setUserInfo(null);
             return Promise.reject(refreshError);
           }
         }
@@ -96,6 +114,8 @@ export function AuthProvider({ children }) {
     // Set axios header IMMEDIATELY before state update
     axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     setToken(accessToken);
+    // Fetch user info
+    await fetchUserInfo();
   };
 
   const logout = async () => {
@@ -103,11 +123,12 @@ export function AuthProvider({ children }) {
       await axios.post(`${API_BASE}/auth/logout`);
     } finally {
       setToken(null);
+      setUserInfo(null);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ token, loading, login, logout }}>
+    <AuthContext.Provider value={{ token, userInfo, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

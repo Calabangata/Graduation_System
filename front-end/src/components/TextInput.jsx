@@ -3,11 +3,16 @@ import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import styles from '../styles/Login.module.css';
 
 function TextInput({ label, type = 'text', value, onChange, error}){
+    // Generate a unique id from the label
+    const inputId = label.toLowerCase().replace(/\s+/g, '-');
+
     return (
        <div className={styles.inputWrapper}>
-  <label>{label}</label>
+  <label htmlFor={inputId}>{label}</label>
   <div className={styles.inputWithIcon}>
     <input
+      id={inputId}
+      name={inputId}
       type={type}
       value={value}
       onChange={onChange}
