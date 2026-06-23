@@ -127,6 +127,14 @@ public class ThesisApplicationService {
         return dto;
     }
 
+    public ThesisApplicationResponseDTO getMyApplication() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        ThesisApplication application = thesisApplicationRepository
+                .findByStudent_UserInfo_EmailAndActiveTrue(email)
+                .orElseThrow(() -> new ResourceNotFoundException("No active thesis application found for the current student."));
+        return toDto(application);
+    }
+
     public void evaluateVotes(Long applicationId) {
         ThesisApplication application = thesisApplicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Thesis application not found"));

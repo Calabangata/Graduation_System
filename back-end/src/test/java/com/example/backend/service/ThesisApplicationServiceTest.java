@@ -424,6 +424,61 @@ public class ThesisApplicationServiceTest {
         assertTrue(result.getFirst().getTopic().contains("AI"));
     }
 
+    @Test
+    void getMyApplication_shouldReturnDTO_whenActiveApplicationExists() {
+        setSecurityContext("student@example.com");
+
+        Department department = new Department();
+        department.setName("Computer Science");
+
+        UserInfo supervisorInfo = new UserInfo();
+        supervisorInfo.setFirstName("Jane");
+        supervisorInfo.setLastName("Doe");
+
+        Teacher supervisor = new Teacher();
+        supervisor.setId(1L);
+        supervisor.setUserInfo(supervisorInfo);
+        supervisor.setDepartment(department);
+
+        ThesisApproval approval = new ThesisApproval();
+        approval.setStatus(ApprovalStatus.PENDING);
+
+        ThesisApplication app = new ThesisApplication();
+        app.setTopic("My Topic");
+        app.setPurpose("My Purpose");
+        app.setTasks("My Tasks");
+        app.setTechStack("Spring Boot");
+        app.setSupervisor(supervisor);
+        app.setThesisApproval(approval);
+        app.setActive(true);
+
+        when(thesisApplicationRepository.findByStudent_UserInfo_EmailAndActiveTrue("student@example.com"))
+                .thenReturn(Optional.of(app));
+
+        ThesisApplicationResponseDTO result = service.getMyApplication();
+
+        assertNotNull(result);
+        assertEquals("My Topic", result.getTopic());
+        assertEquals("My Purpose", result.getPurpose());
+        assertEquals("My Tasks", result.getTasks());
+        assertEquals("Spring Boot", result.getTechStack());
+        assertEquals("Jane Doe", result.getSupervisorName());
+        assertEquals("Computer Science", result.getDepartmentName());
+        assertEquals("PENDING", result.getApprovalStatus());
+    }
+
+    @Test
+    void getMyApplication_shouldThrow_whenNoActiveApplicationFound() {
+        setSecurityContext("student@example.com");
+
+        when(thesisApplicationRepository.findByStudent_UserInfo_EmailAndActiveTrue("student@example.com"))
+                .thenReturn(Optional.empty());
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.getMyApplication());
+
+        assertEquals("No active thesis application found for the current student.", ex.getMessage());
+    }
 
 
     private void setSecurityContext(String email) {

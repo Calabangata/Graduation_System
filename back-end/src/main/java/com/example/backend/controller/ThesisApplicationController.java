@@ -18,6 +18,12 @@ public class ThesisApplicationController {
 
     private final ThesisApplicationService thesisApplicationService;
 
+    @PreAuthorize("hasRole('STUDENT')")
+    @GetMapping("/my-application")
+    public ResponseEntity<ThesisApplicationResponseDTO> getMyApplication() {
+        return ResponseEntity.ok(thesisApplicationService.getMyApplication());
+    }
+
     @PreAuthorize("hasAnyRole('TEACHER')")
     @PostMapping("/submit")
     public ResponseEntity<ThesisApplicationResponseDTO> submitApplication(@RequestBody SubmitThesisApplicationDTO dto) {
