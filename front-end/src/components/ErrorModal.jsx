@@ -61,7 +61,7 @@ export default function ErrorModal({
 
         {/* Content */}
         <div className={styles.content}>
-          <p className={styles.message}>{displayMessage}</p>
+          <p className={styles.message} data-testid="error-modal-message">{displayMessage}</p>
         </div>
 
         {/* Footer */}

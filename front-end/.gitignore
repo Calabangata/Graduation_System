@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Playwright — auto-generated on every run, do not commit
+test-results/
+playwright-report/
+tests/.generated/
+tests/.auth/
